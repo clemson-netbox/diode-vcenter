@@ -1,0 +1,3 @@
+diode-sdk-python
+pyvmomi
+python-dotenv

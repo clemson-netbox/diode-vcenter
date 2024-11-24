@@ -5,6 +5,7 @@ from vcenter_connector import connect_to_vcenter, disconnect_vcenter
 from diode_connector import connect_to_diode
 from data_fetcher import fetch_cluster_data, fetch_vm_data
 from data_transformer import transform_and_push_clusters, transform_and_push_vms
+from version import __version__
 
 # Load .env file
 load_dotenv()
@@ -41,5 +42,7 @@ def main():
         # Clean up connections
         disconnect_vcenter(si)
 
+
 if __name__ == "__main__":
+    print(f"Running Diode vCenter Agent version {__version__}")
     main()
