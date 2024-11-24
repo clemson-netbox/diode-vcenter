@@ -39,5 +39,5 @@ RUN useradd -ms /bin/bash appuser
 USER appuser
 
 # Default command
-#CMD ["python3", "dio#de-vcenter.py"]
+#CMD ["python3", "diode-vcenter.py"]
 CMD ["bash"]
