@@ -1,16 +1,21 @@
+import logging
+
 def fetch_cluster_data(si):
     """
     Fetches cluster information, including cluster name, parent group, and hosts.
     """
+    logging.info("Fetching clusters from vCenter...")
     content = si.RetrieveContent()
     clusters = []
     for datacenter in content.rootFolder.childEntity:
         for cluster in datacenter.hostFolder.childEntity:
+            logging.info(f"Found cluster: {cluster.name}")
             clusters.append({
                 "name": cluster.name,  # Cluster name
                 "parent_name": cluster.parent.name if cluster.parent else None,  # Parent group name
                 "hosts": fetch_host_data(cluster.host),  # List of hosts in this cluster
             })
+    logging.info(f"Fetched {len(clusters)} clusters from vCenter.")
     return clusters
 
 def extract_serial_number(other_identifying_info):
@@ -24,14 +29,15 @@ def extract_serial_number(other_identifying_info):
                 return item.identifierValue
     return None
 
-
 def fetch_host_data(hosts):
     """
     Fetches host information, including name, CPU, memory, NICs (vNICs and pNICs), 
     and hardware details like serial number, model, and vendor.
     """
+    logging.info(f"Fetching details for {len(hosts)} hosts...")
     host_data = []
     for host in hosts:
+        logging.info(f"Processing host: {host.name}")
         host_nics = []
 
         # Collect vNICs
@@ -65,17 +71,19 @@ def fetch_host_data(hosts):
             "model": host.hardware.systemInfo.model,  # Hardware model
             "vendor": host.hardware.systemInfo.vendor,  # Hardware vendor
         })
+    logging.info(f"Fetched details for {len(host_data)} hosts.")
     return host_data
-
 
 def fetch_vm_data(si):
     """
     Fetches VM information, including name, cluster, interfaces, IPs, and disks.
     """
+    logging.info("Fetching VMs from vCenter...")
     content = si.RetrieveContent()
     vms = []
     for datacenter in content.rootFolder.childEntity:
         for vm in datacenter.vmFolder.childEntity:
+            logging.info(f"Processing VM: {vm.name}")
             vm_interfaces = []
             vm_disks = []
 
@@ -102,4 +110,5 @@ def fetch_vm_data(si):
                 "interfaces": vm_interfaces,  # List of NICs
                 "disks": vm_disks,  # List of disks
             })
+    logging.info(f"Fetched {len(vms)} VMs from vCenter.")
     return vms
