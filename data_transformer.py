@@ -53,11 +53,12 @@ def transform_cluster_data(cluster_data):
             device = Device(
                 name=host["name"],
                 site=site_name,
-                cluster_group=group_name,
+                cluster=cluster['name'],
+                cluster_group=cluster['parent_name'],
                 device_type=host["model"],
                 manufacturer=host["vendor"],
                 serial=host["serial_number"],
-                role="host",  # Replace with specific role if applicable
+                role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
                 tags=["vCenter", cluster["name"]],
                 interfaces=interfaces,  # Host NICs as interfaces
