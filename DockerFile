@@ -22,9 +22,6 @@ FROM python:${PYTHON_VER}-slim
 # Set the working directory
 WORKDIR /app
 
-# Copy installed dependencies from builder stage
-COPY --from=builder /install /usr/local/lib/python${PYTHON_VER%.*}/site-packages
-
 # Copy application code
 COPY --from=builder /app /app
 
