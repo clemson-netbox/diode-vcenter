@@ -10,7 +10,7 @@ This Python project is a vCenter to NetBox agent built with the [NetBoxLabs Diod
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/diode_vcenter_agent.git
+   git clone https://github.com/erichester76/diode_vcenter_agent.git
    cd diode_vcenter_agent
    ```
 
@@ -41,7 +41,7 @@ This Python project is a vCenter to NetBox agent built with the [NetBoxLabs Diod
 
 3. Or use command-line arguments:
    ```bash
-   python main.py --diode-server diode.local --diode-token abc123 \
+   python diode-vcenter.py --diode-server diode.local --diode-token abc123 \
        --vcenter-host vcenter.local --vcenter-user admin --vcenter-password password
    ```
 
