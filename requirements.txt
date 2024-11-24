@@ -1,3 +1,3 @@
-netboxlabs-diode-sdk
+netboxlabs-diode-sdk @ git+https://github.com/netboxlabs/diode-sdk-python
 pyvmomi
 python-dotenv
