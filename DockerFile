@@ -27,7 +27,7 @@ COPY --from=builder /app /app
 
 # Install Python dependencies into a temporary directory for multi-stage build
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt=
+    && pip install -r requirements.txt
 
     # Add a non-root user (optional for security)
 RUN useradd -ms /bin/bash appuser
