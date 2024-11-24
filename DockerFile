@@ -16,12 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Clone the repository
 RUN git clone https://github.com/erichester76/diode-vcenter.git .
 
-# Install Python dependencies into a temporary directory for multi-stage build
-RUN pip install --upgrade pip \
-    && pip install --target=/install -r requirements.txt
-
-RUN pip install python-dotenv
-
 # Stage 2: Minimal runtime image
 FROM python:${PYTHON_VER}-slim
 
@@ -44,4 +38,4 @@ USER appuser
 
 # Default command
 #CMD ["python3", "diode-vcenter.py"]
-CMD ["sh"]
+CMD ["bash"]

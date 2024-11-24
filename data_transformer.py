@@ -1,4 +1,4 @@
-from diode_sdk.models import Resource
+from netboxlabs.diode.sdk.models import Resource
 
 def transform_and_push_clusters(diode_client, cluster_data):
     for cluster in cluster_data:
