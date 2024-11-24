@@ -40,4 +40,4 @@ USER appuser
 
 # Default command
 #CMD ["python3", "diode-vcenter.py"]
-CMD ["bash"]
+CMD ["sh"]
