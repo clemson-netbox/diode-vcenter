@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone the repository
-RUN git clone https://github.com/erichester/diode-vcenter.git .
+RUN git clone https://github.com/erichester76/diode-vcenter.git .
 
 # Install Python dependencies into a temporary directory for multi-stage build
 RUN pip install --upgrade pip \
