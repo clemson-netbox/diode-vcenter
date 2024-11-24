@@ -1,0 +1,5 @@
+DIODE_SERVER=diode.example.com
+DIODE_TOKEN=your_diode_api_token
+VCENTER_HOST=vcenter.example.com
+VCENTER_USER=administrator@vsphere.local
+VCENTER_PASSWORD=your_vcenter_password
