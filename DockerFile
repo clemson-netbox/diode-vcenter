@@ -1,5 +1,5 @@
 # Set the Python version as a variable
-ARG PYTHON_VER=3.11
+ARG PYTHON_VER=3.12
 
 # Stage 1: Base image for building
 FROM python:${PYTHON_VER}-slim AS builder
@@ -16,22 +16,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Clone the repository
 RUN git clone https://github.com/erichester76/diode-vcenter.git .
 
+# Install Python dependencies into a temporary directory for multi-stage build
+RUN pip install --upgrade pip \
+    && pip install --target=/install -r requirements.txt
+
+RUN pip install python-dotenv
+
 # Stage 2: Minimal runtime image
 FROM python:${PYTHON_VER}-slim
 
 # Set the working directory
 WORKDIR /app
 
+# Copy installed dependencies from builder stage
+COPY --from=builder /install /usr/local/lib/python${PYTHON_VER%.*}/site-packages
+
 # Copy application code
 COPY --from=builder /app /app
 
-# Install Python dependencies into a temporary directory for multi-stage build
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
-
-    # Add a non-root user (optional for security)
+# Add a non-root user (optional for security)
 RUN useradd -ms /bin/bash appuser
 USER appuser
 
 # Default command
-CMD ["python3", "diode-vcenter.py"]
+#CMD ["python3", "dio#de-vcenter.py"]
+CMD ["bash"]
