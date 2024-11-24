@@ -20,6 +20,8 @@ RUN git clone https://github.com/erichester76/diode-vcenter.git .
 RUN pip install --upgrade pip \
     && pip install --target=/install -r requirements.txt
 
+RUN pip install python-dotenv
+
 # Stage 2: Minimal runtime image
 FROM python:${PYTHON_VER}-slim
 
