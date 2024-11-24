@@ -1,5 +1,5 @@
 # Set the Python version as a variable
-ARG PYTHON_VER=3.13
+ARG PYTHON_VER=3.12
 
 # Stage 1: Base image for building
 FROM python:${PYTHON_VER}-slim AS builder
