@@ -46,7 +46,7 @@ def main():
 
     # Connect to Diode
     with DiodeClient(
-        target=f"grpc://{args.diode_server}",
+        target=f"grpc://{args.diode_server}/diode",
         app_name="diode-vcenter",
         app_version=__version__,
     ) as client:
@@ -63,16 +63,16 @@ def main():
             cluster_entities = transform_cluster_data(cluster_data)
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
 
-            logging.info("Transforming VM data to Diode entities...")
-            vm_entities = transform_vm_data(vm_data)
-            logging.info(f"Transformed {len(vm_entities)} VM entities.")
-
             logging.info("Ingesting cluster data into Diode...")
             cluster_response = client.ingest(entities=cluster_entities)
             if cluster_response.errors:
                 logging.error(f"Cluster Errors: {cluster_response.errors}")
             else:
                 logging.info("Cluster data ingested successfully.")
+
+            logging.info("Transforming VM data to Diode entities...")
+            vm_entities = transform_vm_data(vm_data)
+            logging.info(f"Transformed {len(vm_entities)} VM entities.")
 
             logging.info("Ingesting VM data into Diode...")
             vm_response = client.ingest(entities=vm_entities)
