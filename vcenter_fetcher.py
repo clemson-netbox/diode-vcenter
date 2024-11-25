@@ -20,7 +20,7 @@ def fetch_cluster_data(si):
             site_name = transformer.host_to_site(cluster.name)
             # Check if the cluster has hosts
             if hasattr(cluster, "host") and cluster.host:
-                hosts = fetch_host_data(cluster.host, site_name)  # List of hosts in this cluster
+                hosts = fetch_host_data(cluster.host, site_name) 
             else:
                 logging.warning(f"Cluster {cluster.name} has no hosts.")
                 hosts = []
@@ -42,7 +42,6 @@ def fetch_host_data(hosts, site_name):
     host_data = []
     for host in hosts:
         logging.info(f"Processing host: {host.name}")
-        # Clean hostname and determine tenant
         clean_name = transformer.clean_name(host.name)
         tenant = transformer.host_to_tenant(clean_name)
         host_nics = []
@@ -55,10 +54,11 @@ def fetch_host_data(hosts, site_name):
 
         # Append host details
         host_data.append({
-            "name": clean_name,  # Cleaned host name
-            "site": site_name,  # Site determined from cluster name
-            "tenant": tenant,  # Tenant determined from hostname
-            "nics": host_nics,  # NIC details
+            "name": clean_name,  
+            "site": site_name,  
+            "tenant": tenant,
+            "role": "Hypervisor Host",
+            "nics": host_nics, 
             "model": host.hardware.systemInfo.model,
             "vendor": host.hardware.systemInfo.vendor,
         })
@@ -73,7 +73,7 @@ def fetch_vm_data(si):
     content = si.RetrieveContent()
     vms = []
     for datacenter in content.rootFolder.childEntity:
-        vm_folder = datacenter.vmFolder  # Entry point to VMs
+        vm_folder = datacenter.vmFolder
         vms.extend(_fetch_vms_from_folder(vm_folder))
     logging.info(f"Fetched {len(vms)} VMs from vCenter.")
     return vms
@@ -88,18 +88,24 @@ def _fetch_vms_from_folder(folder):
             logging.info(f"Processing VM: {item.name}")
             clean_name = transformer.clean_name(item.name)
             tenant = transformer.vm_to_tenant(clean_name)
-            role = transformer.vm_tol_role(clean_name)
+            role = transformer.vm_to_role(clean_name)
 
             vm_interfaces = [
                 {"name": nic.deviceConfigId, "mac": nic.macAddress, "ip": nic.ipAddress[0]}
                 for nic in item.guest.net if nic.ipAddress
             ]
+            
+            vm_disks = [
+                {"label": disk.deviceInfo.label, "capacity": disk.capacityInKB, } 
+                for disk in item.config.hardware.device if hasattr(disk, "capacityInKB")
+            ]
 
             vms.append({
-                "name": clean_name,  # Cleaned VM name
-                "tenant": tenant,  # Tenant determined from VM name
+                "name": clean_name,  
+                "tenant": tenant,  
                 'role': role,
-                "interfaces": vm_interfaces,  # NIC details
+                "interfaces": vm_interfaces,  
+                "disks": vm_disks,
             })
         elif isinstance(item, vim.Folder):
             # Recursively process subfolders

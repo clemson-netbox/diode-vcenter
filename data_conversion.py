@@ -9,9 +9,6 @@ def prepare_cluster_data(cluster_data):
     entities = []
 
     for cluster in cluster_data:
-        site_name = get_site_name(cluster["name"])  # Determine site name
-        group_name = get_group_name(cluster["parent_name"])  # Determine group name
-
         # Process each host in the cluster
         for host in cluster["hosts"]:
             # Prepare NICs as interfaces
@@ -23,7 +20,7 @@ def prepare_cluster_data(cluster_data):
             # Create Device entity for each host
             device = Device(
                 name=host["name"],
-                site=site_name,
+                site=cluster["site"],
                 cluster=cluster['name'],
                 cluster_group=cluster['parent_name'],
                 device_type=host["model"],
@@ -31,7 +28,7 @@ def prepare_cluster_data(cluster_data):
                 serial=host["serial_number"],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
-                tags=["vCenter", cluster["name"]],
+                tags=["Diode", cluster["name"]],
                 interfaces=interfaces,  # Host NICs as interfaces
             )
             entities.append(Entity(device=device))
@@ -57,11 +54,11 @@ def prepare_vm_data(vm_data):
         # Create VirtualMachine entity for each VM
         virtual_machine = VirtualMachine(
             name=vm["name"],
-            cluster=vm.get("cluster"),
-            site=vm.get("site"),
-            role="application-server",  # Replace with specific VM role if applicable
+            cluster=vm["cluster"],
+            site=vm["site"],
+            role=vm['role'],
             status="active",
-            tags=["vCenter", vm.get("cluster")],
+            tags=["Diode", vm.get("cluster")],
             interfaces=interfaces,  # VM NICs as interfaces
             disks=disks,  # VM disks directly in the flat structure
         )

@@ -32,29 +32,29 @@ class Transformer:
                 return re.sub(pattern, replacement, value, flags=re.IGNORECASE)
         return value
 
-    def host_to_site(self, cluster_name):
+    def host_to_site(self, name):
         """
         Transform a host's cluster name to its site name.
         """
-        return self.apply_regex_replacements(cluster_name, self.host_site_rules)
+        return self.apply_regex_replacements(name, self.host_site_rules)
 
-    def host_to_tenant(self, hostname):
+    def host_to_tenant(self, name):
         """
         Transform a host's name to its tenant.
         """
-        return self.apply_regex_replacements(hostname, self.host_tenant_rules)
+        return self.apply_regex_replacements(name, self.host_tenant_rules)
 
-    def vm_to_tenant(self, vm_name):
+    def vm_to_tenant(self, name):
         """
         Transform a VM's name to its tenant.
         """
-        return self.apply_regex_replacements(vm_name, self.vm_tenant_rules)
+        return self.apply_regex_replacements(name, self.vm_tenant_rules)
     
-    def vm_to_role(self, vm_name):
+    def vm_to_role(self, name):
         """
         Transform a VM's name to its tenant.
         """
-        return self.apply_regex_replacements(vm_name, self.vm_role_rules)
+        return self.apply_regex_replacements(name, self.vm_role_rules)
 
     def clean_name(self, name):
         """
