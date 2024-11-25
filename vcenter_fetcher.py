@@ -13,26 +13,38 @@ def fetch_cluster_data(si):
     logging.info("Fetching clusters from vCenter...")
     content = si.RetrieveContent()
     clusters = []
+
     for datacenter in content.rootFolder.childEntity:
         for cluster in datacenter.hostFolder.childEntity:
-            logging.info(f"Processing cluster: {cluster.name}")
-            # Determine site name from cluster name
-            site_name = transformer.host_to_site(cluster.name)
-            # Check if the cluster has hosts
-            if hasattr(cluster, "host") and cluster.host:
-                hosts = fetch_host_data(cluster.host, site_name) 
-            else:
-                logging.warning(f"Cluster {cluster.name} has no hosts.")
-                hosts = []
+            try:
+                logging.info(f"Processing cluster: {cluster.name}")
+                # Determine site name from cluster name
+                site_name = transformer.host_to_site(cluster.name)
+                logging.debug(f"Site name for cluster {cluster.name}: {site_name}")
 
-            clusters.append({
-                "name": cluster.name,  # Cluster name
-                "parent_name": cluster.parent.name if cluster.parent else None,  # Parent group name
-                "site": site_name,
-                "hosts": hosts,
-            })
+                # Check if the cluster has hosts
+                if hasattr(cluster, "host") and cluster.host:
+                    logging.debug(f"Cluster {cluster.name} has {len(cluster.host)} hosts.")
+                    hosts = fetch_host_data(cluster.host, site_name)
+                else:
+                    logging.warning(f"Cluster {cluster.name} has no hosts.")
+                    hosts = []
+
+                # Process parent name
+                parent_name = cluster.parent.name if cluster.parent else None
+                logging.debug(f"Cluster {cluster.name} parent: {parent_name}")
+
+                clusters.append({
+                    "name": cluster.name,  # Cluster name
+                    "parent_name": parent_name,  # Parent group name
+                    "site": site_name,
+                    "hosts": hosts,
+                })
+            except Exception as e:
+                logging.error(f"Error processing cluster {cluster.name}: {e}")
     logging.info(f"Fetched {len(clusters)} clusters from vCenter.")
     return clusters
+
 
 def fetch_host_data(hosts, site_name):
     """
@@ -41,28 +53,38 @@ def fetch_host_data(hosts, site_name):
     logging.info(f"Fetching details for {len(hosts)} hosts...")
     host_data = []
     for host in hosts:
-        logging.info(f"Processing host: {host.name}")
-        clean_name = transformer.clean_name(host.name)
-        tenant = transformer.host_to_tenant(clean_name)
-        host_nics = []
+        try:
+            logging.debug(f"Processing host: {host.name}")
+            # Clean hostname and determine tenant
+            clean_name = transformer.clean_name(host.name)
+            tenant = transformer.host_to_tenant(clean_name)
+            logging.debug(f"Transformed host {host.name} -> clean: {clean_name}, tenant: {tenant}")
 
-        # Collect vNICs and pNICs
-        for vnic in host.config.network.vnic:
-            host_nics.append({"type": "vNIC", "name": vnic.device, "mac": vnic.spec.mac})
-        for pnic in host.config.network.pnic:
-            host_nics.append({"type": "pNIC", "name": pnic.device, "mac": getattr(pnic, "mac", None)})
+            host_nics = []
+            for vnic in host.config.network.vnic:
+                host_nics.append({
+                    "type": "vNIC", 
+                    "name": vnic.device, 
+                    "mac": vnic.spec.mac,
+                })
+            for pnic in host.config.network.pnic:
+                host_nics.append({
+                    "type": "pNIC", 
+                    "name": pnic.device, 
+                    "mac": getattr(pnic, "mac", None),
+                })
 
-        # Append host details
-        host_data.append({
-            "name": clean_name,  
-            "site": site_name,  
-            "tenant": tenant,
-            "role": "Hypervisor Host",
-            "nics": host_nics, 
-            "model": host.hardware.systemInfo.model,
-            "vendor": host.hardware.systemInfo.vendor,
-        })
-    logging.info(f"Fetched details for {len(host_data)} hosts.")
+            host_data.append({
+                "name": clean_name,
+                "site": site_name,
+                "tenant": tenant,
+                "role": "Hypervisor Host",
+                "nics": host_nics,
+                "model": host.hardware.systemInfo.model,
+                "vendor": host.hardware.systemInfo.vendor,
+            })
+        except Exception as e:
+            logging.error(f"Error processing host {host.name}: {e}")
     return host_data
 
 def fetch_vm_data(si):
