@@ -11,7 +11,7 @@ class Transformer:
         self.host_tenant_rules = self._load_rules(host_tenant_rules_path)
         self.vm_tenant_rules = self._load_rules(vm_tenant_rules_path)
         self.vm_role_rules = self._load_rules(vm_role_rules_path)
-        self.skip_vm_rules = self.load_rules(skip_rules_path)
+        self.skip_vm_rules = self._load_rules(skip_rules_path)
 
     def _load_rules(self, path):
         """
