@@ -197,6 +197,11 @@ def _fetch_vms_from_folder(folder):
                 for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
             ]
 
+            # "datastore": device.backing.datastore.name if hasattr(device.backing, 'datastore') else "",
+            # "disk_type": device.backing.diskMode if hasattr(device.backing, 'diskMode') else "",
+            # "thin_thick": "Thin Provisioned" if hasattr(device.backing, 'thinProvisioned') else "Thick Provisioned",
+            # "vmdk": device.backing.fileName if hasattr(device.backing, 'fileName') else "",
+            
             vms = {
                     "name": vm.name,
                     "status": "active" if vm.runtime.powerState == "poweredOn" else "offline",
