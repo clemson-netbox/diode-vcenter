@@ -76,13 +76,13 @@ def fetch_host_data(hosts, site_name):
             host_nics = []
             for vnic in host.config.network.vnic:
                 host_nics.append({
-                    "type": "vNIC", 
+                    "type": "virtual", 
                     "name": vnic.device, 
                     "mac": vnic.spec.mac,
                 })
             for pnic in host.config.network.pnic:
                 host_nics.append({
-                    "type": "pNIC", 
+                    "type": "virtual", 
                     "name": pnic.device, 
                     "mac": getattr(pnic, "mac", None),
                 })

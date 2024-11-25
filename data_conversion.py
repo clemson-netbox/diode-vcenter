@@ -9,16 +9,15 @@ def prepare_cluster_data(cluster_data):
     entities = []
 
     for cluster in cluster_data:
-        cluster_data = Cluster(
-                name=cluster['name'],
-                group=cluster['group'],
-                site=cluster['site'],
-                status='active',
-                tags=["Diode"],
-
-            )
-        entities.append(Entity(cluster=cluster_data))
-            
+        cluster_entity = Cluster(
+            name=cluster['name'],
+            group=cluster['group'],
+            site=cluster['site'],
+            status='active',
+            tags=["Diode"],
+        )
+        entities.append(Entity(cluster=cluster_entity))
+                    
         for host in cluster["hosts"]:
            
             # Create Device entity for each host
@@ -38,10 +37,10 @@ def prepare_cluster_data(cluster_data):
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
-                    device=host["name"],
+                    device=device_data,  
                     mac_address=nic["mac"],
                     type=nic["type"],
-                )               
+                )       
                 entities.append(Entity(interface=interface_data))
 
     return entities
