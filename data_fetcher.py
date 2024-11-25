@@ -9,14 +9,22 @@ def fetch_cluster_data(si):
     clusters = []
     for datacenter in content.rootFolder.childEntity:
         for cluster in datacenter.hostFolder.childEntity:
-            logging.info(f"Found cluster: {cluster.name}")
+            logging.info(f"Processing cluster: {cluster.name}")
+            # Check if the cluster has hosts
+            if hasattr(cluster, "host") and cluster.host:
+                hosts = fetch_host_data(cluster.host)  # List of hosts in this cluster
+            else:
+                logging.warning(f"Cluster {cluster.name} has no hosts.")
+                hosts = []
+
             clusters.append({
                 "name": cluster.name,  # Cluster name
                 "parent_name": cluster.parent.name if cluster.parent else None,  # Parent group name
-                "hosts": fetch_host_data(cluster.host),  # List of hosts in this cluster
+                "hosts": hosts,
             })
     logging.info(f"Fetched {len(clusters)} clusters from vCenter.")
     return clusters
+
 
 def extract_serial_number(other_identifying_info):
     """
