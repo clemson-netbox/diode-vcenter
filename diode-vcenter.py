@@ -32,6 +32,16 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def ingest_with_logging(client, entities, entity_type):
+    try:
+        response = client.ingest(entities=entities)
+        if response.errors:
+            logging.error(f"Diode Ingestion Errors for {entity_type}: {response.errors}")
+        else:
+            logging.info(f"Successfully ingested {len(entities)} {entity_type}.")
+    except Exception as e:
+        logging.error(f"Error during {entity_type} ingestion: {e}")
+
 def main():
     # Parse arguments
     args = parse_arguments()
@@ -60,11 +70,7 @@ def main():
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
 
             logging.info("Ingesting cluster data into Diode...")
-            cluster_response = client.ingest(entities=cluster_entities)
-            if cluster_response.errors:
-                logging.error(f"Cluster Errors: {cluster_response.errors}")
-            else:
-                logging.info("Cluster data ingested successfully.")
+            ingest_with_logging(client, cluster_entities, "clusters")
 
             # logging.info("Fetching VM data from vCenter...")
             # vm_data = fetch_vm_data(si)
@@ -75,7 +81,7 @@ def main():
             # logging.info(f"Transformed {len(vm_entities)} VM entities.")
 
             # logging.info("Ingesting VM data into Diode...")
-            # vm_response = client.ingest(entities=vm_entities)
+            # ingest_with_logging(client, vm_entities, "VMs")
             # if vm_response.errors:
             #     logging.error(f"VM Errors: {vm_response.errors}")
             # else:
