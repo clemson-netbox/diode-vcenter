@@ -94,7 +94,7 @@ def prepare_vm_data(vm_data):
 
             ) 
             entities.append(Entity(vminterface=interface_data))
-            if nic['ipv6_address']:
+            if nic['ipv4_address']:
                 ip_data = IPAddress(
                     address=nic['ipv4_address'],
                     description=f"{vm['name']} {nic['name']}",
