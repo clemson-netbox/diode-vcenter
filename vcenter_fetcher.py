@@ -120,7 +120,7 @@ def fetch_host_data(hosts, site_name):
                     "type": "virtual",
                     "name": vnic.device,
                     "mac": vnic.spec.mac,
-                    "ip_addresses": vnic.spec.ip.ipAddress.split(',') if vnic.spec.ip and hasattr(vnic.spec.ip, 'ipAddress') else [],
+                    "ip_addresses": ip_addresses,
                     "dvs_name": vnic.distributedVirtualPort.switchUuid if hasattr(vnic, "distributedVirtualPort") else None,
                     "portgroup_name": vnic.portgroup if hasattr(vnic, "portgroup") else None,
                 }
