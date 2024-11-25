@@ -116,7 +116,7 @@ def prepare_vm_data(vm_data):
             for disk in vm["disks"]:
                 try:
                     disk_data = VirtualDisk(
-                        name=disk["label"],
+                        name=disk["name"],
                         virtual_machine=vm["name"],
                         capacity=disk["capacity"],
                         description=f"{disk.get('datastore', 'Unknown')} "

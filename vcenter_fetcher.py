@@ -200,7 +200,8 @@ def _fetch_vms_from_folder(folder):
                                         else:
                                             ipv4_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
                             interface = {
-                                "vm_name": vm.name, "interface_name": device.deviceInfo.label,
+                                "vm_name": vm.name, 
+                                "name": device.deviceInfo.label,
                                 "mac_address": device.macAddress if hasattr(device, 'macAddress') else None,
                                 "enabled": device.connectable.connected if hasattr(device, 'connectable') else False,
                                 "ipv4_address": ipv4_addresses[0] if len(ipv4_addresses) > 0 else None,
