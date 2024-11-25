@@ -21,8 +21,9 @@ def prepare_cluster_data(cluster_data):
                 name=cluster['name'],
                 group=cluster['group'],
                 site=cluster['site'],
-                tenant=cluster['tenant'],
-                
+                status='active',
+                tags=["Diode"],
+
             )
             # Create Device entity for each host
             device = Device(
@@ -33,7 +34,7 @@ def prepare_cluster_data(cluster_data):
                 serial=host["serial_number"],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
-                tags=["Diode", cluster["name"]],
+                tags=["Diode"],
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
             entities.append(Entity(device=device))
@@ -63,7 +64,7 @@ def prepare_vm_data(vm_data):
             site=vm["site"],
             role=vm['role'],
             status="active",
-            tags=["Diode", vm.get("cluster")],
+            tags=["Diode"],
             #interfaces=interfaces,  # VM NICs as interfaces
             #disks=disks,  # VM disks directly in the flat structure
         )
