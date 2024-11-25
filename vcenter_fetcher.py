@@ -218,7 +218,7 @@ def _fetch_vms_from_folder(folder):
                 } for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
             ]
             
-            vms = {
+            vms.append({
                     "name": vm.name,
                     "status": "active" if vm.runtime.powerState == "poweredOn" else "offline",
                     "site": transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else None,
@@ -232,7 +232,8 @@ def _fetch_vms_from_folder(folder):
                     "comments": None,  # Placeholder for any comments
                     "interfaces": vm_interfaces,  # List of NICs
                     "disks": vm_disks,  # List of disks
-                }
+                })
+
             
         elif isinstance(vm, vim.Folder):
             # Recursively process subfolders
