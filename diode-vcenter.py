@@ -21,14 +21,51 @@ load_dotenv()
 
 def parse_arguments():
     """
-    Parses command-line arguments and falls back to environment variables.
+    Parse command-line arguments with environment variable defaults,
+    making all arguments effectively required.
     """
-    parser = argparse.ArgumentParser(description="vCenter to Diode Agent")
-    parser.add_argument("--diode-server", default=os.getenv("DIODE_SERVER"), help="Diode server address")
-    parser.add_argument("--diode-token", default=os.getenv("DIODE_TOKEN"), help="Diode API token")
-    parser.add_argument("--vcenter-host", default=os.getenv("VCENTER_HOST"), help="vCenter host")
-    parser.add_argument("--vcenter-user", default=os.getenv("VCENTER_USER"), help="vCenter username")
-    parser.add_argument("--vcenter-password", default=os.getenv("VCENTER_PASSWORD"), help="vCenter password")
+    import argparse
+    import os
+
+    parser = argparse.ArgumentParser(description="Catalyst Center to Diode Agent")
+
+    parser.add_argument(
+        "--diode-server",
+        default=os.getenv("DIODE_SERVER"),
+        required=not os.getenv("DIODE_SERVER"),
+        help="Diode server address (or set via DIODE_SERVER environment variable)"
+    )
+    parser.add_argument(
+        "--diode-api-key",
+        default=os.getenv("DIODE_API_KEY"),
+        required=not os.getenv("DIODE_API_KEY"),
+        help="Diode API token (or set via DIODE_API_KEY environment variable)"
+    )
+    parser.add_argument(
+        "--VCENTER-host",
+        default=os.getenv("VCENTER_HOST"),
+        required=not os.getenv("VCENTER_HOST"),
+        help="Catalyst Center host (or set via VCENTER_HOST environment variable)"
+    )
+    parser.add_argument(
+        "--VCENTER-user",
+        default=os.getenv("VCENTER_USER"),
+        required=not os.getenv("VCENTER_USER"),
+        help="Catalyst Center username (or set via VCENTER_USER environment variable)"
+    )
+    parser.add_argument(
+        "--VCENTER-password",
+        default=os.getenv("VCENTER_PASSWORD"),
+        required=not os.getenv("VCENTER_PASSWORD"),
+        help="Catalyst Center password (or set via VCENTER_PASSWORD environment variable)"
+    )
+    parser.add_argument(
+        "--VCENTER-verify",
+        default=os.getenv("VCENTER_VERIFY", "true").lower() in ("true", "1", "yes"),
+        type=lambda x: x.lower() in ("true", "1", "yes"),
+        help="Verify Catalyst Center SSL certificate (default: true, or set via VCENTER_VERIFY environment variable)"
+    )
+
     return parser.parse_args()
 
 
