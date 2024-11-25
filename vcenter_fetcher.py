@@ -1,6 +1,7 @@
 from pyVmomi import vim
 from transformer import Transformer
 import logging
+from ipaddress import IPv4Network
 
 # Initialize Transformer with paths to regex rules
 transformer = Transformer("includes/host_site_rules.yml", "includes/host_tenant_rules.yml", "includes/vm_role_rules.yml", "includes/vm_tenant_rules.yml", "includes/skip_vms.yml")
@@ -78,11 +79,9 @@ def get_cidr(ip, subnet_mask):
     """
     Converts an IP address and subnet mask to CIDR notation (x.x.x.x/y).
     """
-    from ipaddress import ip_network
     try:
-        # Convert subnet mask to prefix length
-        network = ip_network(f"{ip}/{subnet_mask}", strict=False)
-        return str(network)
+        prefix_length = IPv4Network(f"0.0.0.0/{subnet_mask}").prefixlen
+        return f"{ip}/{prefix_length}"
     except Exception as e:
         logging.error(f"Failed to convert {ip} and {subnet_mask} to CIDR: {e}")
         return None
