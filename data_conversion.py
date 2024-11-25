@@ -9,15 +9,7 @@ def prepare_cluster_data(cluster_data):
     entities = []
 
     for cluster in cluster_data:
-        # Process each host in the cluster
-        for host in cluster["hosts"]:
-            # Prepare NICs as interfaces
-            interfaces = [
-                {"name": nic["name"], "mac_address": nic["mac"], "type": nic["type"]}
-                for nic in host["nics"]
-            ]
-
-            cluster = Cluster(
+        cluster_data = Cluster(
                 name=cluster['name'],
                 group=cluster['group'],
                 site=cluster['site'],
@@ -25,8 +17,12 @@ def prepare_cluster_data(cluster_data):
                 tags=["Diode"],
 
             )
+        entities.append(Entity(cluster=cluster_data))
+            
+        for host in cluster["hosts"]:
+           
             # Create Device entity for each host
-            device = Device(
+            device_data = Device(
                 name=host["name"],
                 site=cluster["site"],
                 device_type=host["model"],
@@ -37,7 +33,16 @@ def prepare_cluster_data(cluster_data):
                 tags=["Diode"],
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
-            entities.append(Entity(device=device))
+            entities.append(Entity(device=device_data))
+            
+            for nic in host["nics"]:
+                interface_data = Interface(
+                    name=nic["name"], 
+                    device=host["name"],
+                    mac_address=nic["mac"],
+                    type=nic["type"],
+                )               
+                entities.append(Entity(interface=interface_data))
 
     return entities
 

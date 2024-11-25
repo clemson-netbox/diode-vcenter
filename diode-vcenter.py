@@ -55,10 +55,6 @@ def main():
             cluster_data = fetch_cluster_data(si)
             logging.info(f"Fetched {len(cluster_data)} clusters.")
 
-            logging.info("Fetching VM data from vCenter...")
-            vm_data = fetch_vm_data(si)
-            logging.info(f"Fetched {len(vm_data)} VMs.")
-
             logging.info("Transforming cluster data to Diode entities...")
             cluster_entities = prepare_cluster_data(cluster_data)
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
@@ -69,6 +65,10 @@ def main():
                 logging.error(f"Cluster Errors: {cluster_response.errors}")
             else:
                 logging.info("Cluster data ingested successfully.")
+
+            logging.info("Fetching VM data from vCenter...")
+            vm_data = fetch_vm_data(si)
+            logging.info(f"Fetched {len(vm_data)} VMs.")
 
             logging.info("Transforming VM data to Diode entities...")
             vm_entities = prepare_vm_data(vm_data)
