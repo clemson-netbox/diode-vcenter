@@ -1,5 +1,5 @@
 import re
-from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Entity
+from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VMDisk, Entity
 
 
 def prepare_cluster_data(cluster_data):
@@ -17,19 +17,24 @@ def prepare_cluster_data(cluster_data):
                 for nic in host["nics"]
             ]
 
+            cluster = Cluster(
+                name=cluster['name'],
+                group=cluster['group'],
+                site=cluster['site'],
+                tenant=cluster['tenant'],
+                
+            )
             # Create Device entity for each host
             device = Device(
                 name=host["name"],
                 site=cluster["site"],
-                cluster=cluster['name'],
-                cluster_group=cluster['parent_name'],
                 device_type=host["model"],
                 manufacturer=host["vendor"],
                 serial=host["serial_number"],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
                 tags=["Diode", cluster["name"]],
-                interfaces=interfaces,  # Host NICs as interfaces
+                #interfaces=interfaces,  # Host NICs as interfaces
             )
             entities.append(Entity(device=device))
 
@@ -59,8 +64,8 @@ def prepare_vm_data(vm_data):
             role=vm['role'],
             status="active",
             tags=["Diode", vm.get("cluster")],
-            interfaces=interfaces,  # VM NICs as interfaces
-            disks=disks,  # VM disks directly in the flat structure
+            #interfaces=interfaces,  # VM NICs as interfaces
+            #disks=disks,  # VM disks directly in the flat structure
         )
         entities.append(Entity(virtual_machine=virtual_machine))
 

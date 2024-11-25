@@ -32,7 +32,8 @@ def fetch_cluster_data(si):
                 # Determine site name from cluster name
                 site_name = transformer.host_to_site(cluster.name)
                 logging.debug(f"Site name for cluster {cluster.name}: {site_name}")
-
+                tenant = transformer.host_to_tenant(cluster.name)
+                logging.debug(f"Tenant name for cluster {cluster.name}: {tenant}")
                 # Check if the cluster has hosts
                 if hasattr(cluster, "host") and cluster.host:
                     logging.debug(f"Cluster {cluster.name} has {len(cluster.host)} hosts.")
@@ -42,14 +43,15 @@ def fetch_cluster_data(si):
                     hosts = []
 
                 # Process parent name
-                parent_name = cluster.parent.name if cluster.parent else None
+                parent_name = cluster.parent.parent.name if cluster.parent.parent else None
                 logging.debug(f"Cluster {cluster.name} parent: {parent_name}")
 
                 clusters.append({
-                    "name": cluster.name,  # Cluster name
-                    "parent_name": parent_name,  # Parent group name
+                    "name": cluster.name,
+                    "group": parent_name, 
                     "site": site_name,
                     "hosts": hosts,
+                    "tenant": tenant,
                 })
             except Exception as e:
                 logging.error(f"Error processing cluster {cluster.name}: {e}")
@@ -90,6 +92,7 @@ def fetch_host_data(hosts, site_name):
             host_data.append({
                 "name": clean_name,
                 "site": site_name,
+                "cluster": host.parent.name,
                 "tenant": tenant,
                 "nics": host_nics,
                 "model": host.hardware.systemInfo.model,
