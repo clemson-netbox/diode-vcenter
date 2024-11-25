@@ -1,3 +1,4 @@
 netboxlabs-diode-sdk
 pyvmomi
 python-dotenv
+PyYAML>=6.0
