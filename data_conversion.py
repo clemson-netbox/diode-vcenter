@@ -88,7 +88,7 @@ def prepare_vm_data(vm_data):
             
             for nic in vm["interfaces"]:
                 try:
-                    interface_data = Interface(
+                    interface_data = VMInterface(
                         name=nic["name"],
                         virtual_machine=vm["name"],
                         mac_address=nic["mac"],

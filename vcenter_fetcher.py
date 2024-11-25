@@ -215,7 +215,7 @@ def _fetch_vms_from_folder(folder):
             vm_disks = [
                 {
                 "name": disk.deviceInfo.label, 
-                "capacity": int(round(disk.capacityInKB / 1024)), 
+                "capacity": round(disk.capacityInKB / 1024), 
                 "datastore": disk.backing.datastore.name, 
                 "vmdk": disk.backing.fileName,
                 "disk_type": disk.backing.diskMode, 
