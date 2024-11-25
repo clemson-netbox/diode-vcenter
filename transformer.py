@@ -23,7 +23,7 @@ class Transformer:
             logging.error(f"Failed to load rules from {path}: {e}")
             exit(1)
 
-    def apply_regex_replacements(value, rules):
+    def apply_regex_replacements(self, value, rules):
         for rule in rules:
             # Validate rule structure
             if len(rule) != 2:
