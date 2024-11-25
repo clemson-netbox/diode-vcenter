@@ -52,7 +52,7 @@ def prepare_cluster_data(data):
                     ip_data = IPAddress(
                         address=ip,
                         interface=interface_data,
-                        description=f"{nic['name']} {nic['dvs_name']} {nic['portgroup_name']}",
+                        description=f"{nic['name']} {nic['portgroup_name']}",
                         tags=["Diode-vCenter-Agent"],
 
                     )
@@ -110,10 +110,10 @@ def prepare_vm_data(vm_data):
                 entities.append(Entity(ip_address=ip_data))
             for disk in vm["disks"]:
                 disk = VirtualDisk(
-                    name=disk['label'],
+                    name=disk['name'],
                     virtual_machine=vm['name'],
                     capacity=disk['capacity'],
-                    description=f"{disk['datastore']} {disk['vmdk']} {disk['tick_thin']} {disk['disk_type']}",
+                    description=f"{disk['datastore']} {disk['vmdk']} {disk['thin_thick']} {disk['disk_type']}",
                     tags=["Diode-vCenter-Agent"],
                 )
                 entities.append(Entity(vmirtual_disk=disk))

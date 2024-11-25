@@ -210,11 +210,12 @@ def _fetch_vms_from_folder(folder):
             
             vm_disks = [
                 {
-                "label": disk.deviceInfo.label, 
+                "name": disk.deviceInfo.label, 
                 "capacity": disk.capacityInKB, 
                 "datastore": disk.backing.datastore.name, 
                 "vmdk": disk.backing.fileName,
-                "disk_type": disk.backing.diskMode, "thin_thick": "Thin" if hasattr(disk.backing, 'thinProvisioned') else "Thick" 
+                "disk_type": disk.backing.diskMode, 
+                "thin_thick": "Thin" if hasattr(disk.backing, 'thinProvisioned') else "Thick" 
                 } for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
             ]
             
