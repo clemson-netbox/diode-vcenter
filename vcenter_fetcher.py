@@ -153,7 +153,6 @@ def fetch_host_data(hosts, site_name):
                 "model": host.hardware.systemInfo.model,
                 "vendor": host.hardware.systemInfo.vendor,
                 "serial_number": serial_number,
-                "tags": ["Diode-vCenter-Agent"],  # Tags for grouping in Diode
 
             })
         except Exception as e:
@@ -214,7 +213,6 @@ def _fetch_vms_from_folder(folder):
                     "memory": vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else None,
                     "description": vm.summary.config.annotation if vm.summary.config.annotation else None,
                     "comments": None,  # Placeholder for any comments
-                    "tags": ["Diode-vCenter-Agent"],  # Tags for grouping in Diode
                     "interfaces": vm_interfaces,  # List of NICs
                     "disks": vm_disks,  # List of disks
                 }
