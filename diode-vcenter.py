@@ -66,20 +66,20 @@ def main():
             else:
                 logging.info("Cluster data ingested successfully.")
 
-            logging.info("Fetching VM data from vCenter...")
-            vm_data = fetch_vm_data(si)
-            logging.info(f"Fetched {len(vm_data)} VMs.")
+            # logging.info("Fetching VM data from vCenter...")
+            # vm_data = fetch_vm_data(si)
+            # logging.info(f"Fetched {len(vm_data)} VMs.")
 
-            logging.info("Transforming VM data to Diode entities...")
-            vm_entities = prepare_vm_data(vm_data)
-            logging.info(f"Transformed {len(vm_entities)} VM entities.")
+            # logging.info("Transforming VM data to Diode entities...")
+            # vm_entities = prepare_vm_data(vm_data)
+            # logging.info(f"Transformed {len(vm_entities)} VM entities.")
 
-            logging.info("Ingesting VM data into Diode...")
-            vm_response = client.ingest(entities=vm_entities)
-            if vm_response.errors:
-                logging.error(f"VM Errors: {vm_response.errors}")
-            else:
-                logging.info("VM data ingested successfully.")
+            # logging.info("Ingesting VM data into Diode...")
+            # vm_response = client.ingest(entities=vm_entities)
+            # if vm_response.errors:
+            #     logging.error(f"VM Errors: {vm_response.errors}")
+            # else:
+            #     logging.info("VM data ingested successfully.")
 
         except Exception as e:
             logging.error(f"An error occurred during the process: {e}")
