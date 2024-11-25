@@ -16,6 +16,8 @@ def prepare_cluster_data(data):
             type="VMWare",
             site=cluster['site'],
             status='active',
+            tags=["Diode-vCenter-Agent"],
+
         )
         entities.append(Entity(cluster=cluster_entity))
                     
@@ -30,6 +32,8 @@ def prepare_cluster_data(data):
                 serial=host["serial_number"],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
+                tags=["Diode-vCenter-Agent"],
+
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
             entities.append(Entity(device=device_data))
@@ -40,13 +44,17 @@ def prepare_cluster_data(data):
                     device=host["name"],  
                     mac_address=nic["mac"],
                     type=nic["type"],
+                    tags=["Diode-vCenter-Agent"],
+
                 )       
                 entities.append(Entity(interface=interface_data))
                 for ip in nic['ip_addresses']:
                     ip_data = IPAddress(
                         address=ip,
                         interface=interface_data,
-                        description=f"{nic['name']} {nic['dvs_name']} {nic['portgroup_name']}"
+                        description=f"{nic['name']} {nic['dvs_name']} {nic['portgroup_name']}",
+                        tags=["Diode-vCenter-Agent"],
+
                     )
                     entities.append(Entity(ip_address=ip_data))
            
@@ -72,7 +80,7 @@ def prepare_vm_data(vm_data):
             site=vm["site"],
             role=vm['role'],
             status=vm['status'],
-            tags=["Diode"],
+            tags=["Diode-vCenter-Agent"],
         )
         entities.append(Entity(virtual_machine=virtual_machine))
         
@@ -81,7 +89,9 @@ def prepare_vm_data(vm_data):
                 name=nic["name"], 
                 virtual_machine=vm["name"],  
                 mac_address=nic["mac"],
-                enabled=nic["enabled"]
+                enabled=nic["enabled"],
+                tags=["Diode-vCenter-Agent"],
+
             ) 
             entities.append(Entity(vminterface=interface_data))
             # for ip in nic['ipaddress']:
@@ -95,7 +105,8 @@ def prepare_vm_data(vm_data):
                     name=disk['label'],
                     virtual_machine=vm['name'],
                     capacity=disk['capacity]'],
-                    description=disk['description']
+                    description=disk['description'],
+                    tags=["Diode-vCenter-Agent"],
                 )
                 entities.append(Entity(vmirtual_disk=disk))
 
