@@ -94,18 +94,26 @@ def prepare_vm_data(vm_data):
 
             ) 
             entities.append(Entity(vminterface=interface_data))
-            # for ip in nic['ipaddress']:
-            #     ip_data= IPAddress(
-            #         address=ip,
-            #         virtual_machine= vm['name']
-            #     )
-            #     entities.append(Entity(ipaddress=ip_data))
+            if nic['ipv6_address']:
+                ip_data = IPAddress(
+                    address=nic['ipv4_address'],
+                    description=f"{vm['name']} {nic['name']}",
+                    status='active'
+                )
+                entities.append(Entity(ip_address=ip_data))
+            if nic['ipv6_address']:
+                ip_data = IPAddress(
+                    address=nic['ipv6_address'],
+                    description=f"{vm['name']} {nic['name']}",
+                    status='active'
+                )
+                entities.append(Entity(ip_address=ip_data))
             for disk in vm["disks"]:
                 disk = VirtualDisk(
                     name=disk['label'],
                     virtual_machine=vm['name'],
-                    capacity=disk['capacity]'],
-                    description=disk['description'],
+                    capacity=disk['capacity'],
+                    description=f"{disk['datastore']} {disk['vmdk']} {disk['tick_thin']} {disk['disk_type']}",
                     tags=["Diode-vCenter-Agent"],
                 )
                 entities.append(Entity(vmirtual_disk=disk))

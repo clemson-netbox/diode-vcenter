@@ -185,21 +185,40 @@ def _fetch_vms_from_folder(folder):
             
             if skip:
                 continue  # Skip this VM
-                
-            vm_interfaces = [
-                {"name": nic.deviceInfo.label, "mac": nic.macAddress, "ip": nic.ipAddress[0], "enabled": nic.connectable.connected if hasattr(nic, 'connectable') else False,}
-                for nic in vm.guest.net if nic.ipAddress
-            ]
+         
+            vm_interfaces = []    
+            for net in vm.guest.net:
+                if hasattr(vm, 'config') and hasattr(vm.config, 'hardware'):
+                    for device in vm.config.hardware.device:
+                        if isinstance(device, vim.vm.device.VirtualEthernetCard):
+                            ipv4_addresses = []
+                            ipv6_addresses = []
+                            if net.macAddress == device.macAddress:
+                                ip_config = getattr(net, 'ipConfig', None)
+                                if ip_config and hasattr(ip_config, 'ipAddress'):
+                                    for ip in ip_config.ipAddress:
+                                        if ':' in ip.ipAddress:
+                                            ipv6_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
+                                        else:
+                                            ipv4_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
+                            interface = {
+                                "vm_name": vm['name'], "interface_name": device.deviceInfo.label,
+                                "mac_address": device.macAddress if hasattr(device, 'macAddress') else None,
+                                "enabled": device.connectable.connected if hasattr(device, 'connectable') else False,
+                                "ipv4_address": ipv4_addresses[0] if len(ipv4_addresses) > 0 else None,
+                                "ipv6_address": ipv6_addresses[0] if len(ipv6_addresses) > 0 else None,
+                            }
+                            vm_interfaces.append(interface)
             
             vm_disks = [
-                {"label": disk.deviceInfo.label, "capacity": disk.capacityInKB, } 
-                for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
+                {
+                "label": disk.deviceInfo.label, 
+                "capacity": disk.capacityInKB, 
+                "datastore": disk.backing.datastore.name, 
+                "vmdk": disk.backing.fileName,
+                "disk_type": disk.backing.diskMode, "thin_thick": "Thin" if hasattr(disk.backing, 'thinProvisioned') else "Thick" 
+                } for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
             ]
-
-            # "datastore": device.backing.datastore.name if hasattr(device.backing, 'datastore') else "",
-            # "disk_type": device.backing.diskMode if hasattr(device.backing, 'diskMode') else "",
-            # "thin_thick": "Thin Provisioned" if hasattr(device.backing, 'thinProvisioned') else "Thick Provisioned",
-            # "vmdk": device.backing.fileName if hasattr(device.backing, 'fileName') else "",
             
             vms = {
                     "name": vm.name,
