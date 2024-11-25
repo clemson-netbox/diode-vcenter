@@ -1,6 +1,6 @@
 import re
 from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Entity
-
+import logging
 
 def prepare_cluster_data(data):
     """
@@ -68,54 +68,69 @@ def prepare_vm_data(vm_data):
     entities = []
 
     for vm in vm_data:
-
-        # Create VirtualMachine entity for each VM
-        virtual_machine = VirtualMachine(
-            name=vm["name"],
-            cluster=vm["cluster"],
-            device=vm['device'],
-            platform=vm['platform'],
-            vcpus=vm['vcpus'],
-            memory=vm['memory'],
-            site=vm["site"],
-            role=vm['role'],
-            status=vm['status'],
-            tags=["Diode-vCenter-Agent"],
-        )
-        entities.append(Entity(virtual_machine=virtual_machine))
-        
-        for nic in vm["interfaces"]:
-            interface_data = Interface(
-                name=nic["name"], 
-                virtual_machine=vm["name"],  
-                mac_address=nic["mac"],
-                enabled=nic["enabled"],
+        try:
+            # Create VirtualMachine entity for each VM
+            virtual_machine = VirtualMachine(
+                name=vm["name"],
+                cluster=vm["cluster"],
+                device=vm["device"],
+                platform=vm["platform"],
+                vcpus=vm["vcpus"],
+                memory=vm["memory"],
+                site=vm["site"],
+                role=vm["role"],
+                status=vm["status"],
                 tags=["Diode-vCenter-Agent"],
+            )
+            entities.append(Entity(virtual_machine=virtual_machine))
+            
+            for nic in vm["interfaces"]:
+                try:
+                    interface_data = Interface(
+                        name=nic["name"],
+                        virtual_machine=vm["name"],
+                        mac_address=nic["mac"],
+                        enabled=nic["enabled"],
+                        tags=["Diode-vCenter-Agent"],
+                    )
+                    entities.append(Entity(vminterface=interface_data))
 
-            ) 
-            entities.append(Entity(vminterface=interface_data))
-            if nic['ipv4_address']:
-                ip_data = IPAddress(
-                    address=nic['ipv4_address'],
-                    description=f"{vm['name']} {nic['name']}",
-                    status='active'
-                )
-                entities.append(Entity(ip_address=ip_data))
-            if nic['ipv6_address']:
-                ip_data = IPAddress(
-                    address=nic['ipv6_address'],
-                    description=f"{vm['name']} {nic['name']}",
-                    status='active'
-                )
-                entities.append(Entity(ip_address=ip_data))
+                    if nic.get("ipv4_address"):
+                        ip_data = IPAddress(
+                            address=nic["ipv4_address"]["address"],
+                            description=f"{vm['name']} {nic['name']}",
+                            status="active",
+                        )
+                        entities.append(Entity(ip_address=ip_data))
+                    if nic.get("ipv6_address"):
+                        ip_data = IPAddress(
+                            address=nic["ipv6_address"]["address"],
+                            description=f"{vm['name']} {nic['name']}",
+                            status="active",
+                        )
+                        entities.append(Entity(ip_address=ip_data))
+                except KeyError as e:
+                    logging.error(f"Error processing NIC for VM {vm['name']}: Missing key {e}")
+                    continue
+
             for disk in vm["disks"]:
-                disk = VirtualDisk(
-                    name=disk['name'],
-                    virtual_machine=vm['name'],
-                    capacity=disk['capacity'],
-                    description=f"{disk['datastore']} {disk['vmdk']} {disk['thin_thick']} {disk['disk_type']}",
-                    tags=["Diode-vCenter-Agent"],
-                )
-                entities.append(Entity(vmirtual_disk=disk))
+                try:
+                    disk_data = VirtualDisk(
+                        name=disk["label"],
+                        virtual_machine=vm["name"],
+                        capacity=disk["capacity"],
+                        description=f"{disk.get('datastore', 'Unknown')} "
+                                    f"{disk.get('vmdk', 'Unknown')} "
+                                    f"{disk.get('thin_thick', 'Unknown')} "
+                                    f"{disk.get('disk_type', 'Unknown')}",
+                        tags=["Diode-vCenter-Agent"],
+                    )
+                    entities.append(Entity(virtual_disk=disk_data))
+                except KeyError as e:
+                    logging.error(f"Error processing disk for VM {vm['name']}: Missing key {e}")
+                    continue
+        except KeyError as e:
+            logging.error(f"Error processing VM: Missing key {e}")
+            continue
 
     return entities
