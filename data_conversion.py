@@ -23,6 +23,7 @@ def prepare_cluster_data(data):
                     
         for host in cluster["hosts"]:
            
+            #TODO: link to cluster when diode is updated to support
             # Create Device entity for each host
             device_data = Device(
                 name=host["name"],
@@ -38,6 +39,7 @@ def prepare_cluster_data(data):
             )
             entities.append(Entity(device=device_data))
             
+            #TODO: Create prefixes and VLANs for networks
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
@@ -94,7 +96,9 @@ def prepare_vm_data(vm_data):
                         tags=["Diode-vCenter-Agent"],
                     )
                     entities.append(Entity(vminterface=interface_data))
-
+                    
+                    #TODO: Create prefixes and VLANs for networks
+                    #TODO: link to vm_interface when diode is updated to support
                     if nic.get("ipv4_address"):
                         ip_data = IPAddress(
                             address=nic["ipv4_address"]["address"],
@@ -102,6 +106,8 @@ def prepare_vm_data(vm_data):
                             status="active",
                         )
                         entities.append(Entity(ip_address=ip_data))
+                        
+                    #TODO: link to vm_interface when diode is updated to support
                     if nic.get("ipv6_address"):
                         ip_data = IPAddress(
                             address=nic["ipv6_address"]["address"],

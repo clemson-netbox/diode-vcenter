@@ -66,6 +66,7 @@ def get_nic_type(link_speed):
     if link_speed is None:
         return "other"
     
+    #TODO: find a more accurate way to specific actual phy type
     link_speed_map = {
         1000: "1000base-t",
         10000: "10gbase-x-sfpp",
@@ -129,6 +130,8 @@ def fetch_host_data(hosts, site_name):
             for pnic in host.config.network.pnic:
                 link_speed = pnic.linkSpeed.speedMb if pnic.linkSpeed else None
                 nic_type = get_nic_type(link_speed)
+                
+                #TODO: Don't assume pNics have no IP
 
                 nic_data = {
                     "type": nic_type,
@@ -202,7 +205,7 @@ def _fetch_vms_from_folder(folder):
                             interface = {
                                 "vm_name": vm.name, 
                                 "name": device.deviceInfo.label,
-                                "mac_address": device.macAddress if hasattr(device, 'macAddress') else None,
+                                "mac": device.macAddress if hasattr(device, 'macAddress') else None,
                                 "enabled": device.connectable.connected if hasattr(device, 'connectable') else False,
                                 "ipv4_address": ipv4_addresses[0] if len(ipv4_addresses) > 0 else None,
                                 "ipv6_address": ipv6_addresses[0] if len(ipv6_addresses) > 0 else None,
@@ -212,7 +215,7 @@ def _fetch_vms_from_folder(folder):
             vm_disks = [
                 {
                 "name": disk.deviceInfo.label, 
-                "capacity": disk.capacityInKB, 
+                "capacity": int(round(disk.capacityInKB / 1024)), 
                 "datastore": disk.backing.datastore.name, 
                 "vmdk": disk.backing.fileName,
                 "disk_type": disk.backing.diskMode, 
