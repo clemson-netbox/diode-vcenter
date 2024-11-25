@@ -3,7 +3,7 @@ from transformer import Transformer
 import logging
 
 # Initialize Transformer with paths to regex rules
-transformer = Transformer("includes/host_site_rules.yml", "includes/host_tenant_rules.yml", "includes/vm_role_rules.yml", "includes/vm_tenant_rules.yml")
+transformer = Transformer("includes/host_site_rules.yml", "includes/host_tenant_rules.yml", "includes/vm_role_rules.yml", "includes/vm_tenant_rules.yml", "includes/skip_vms.yml")
 
 def extract_serial_number(other_identifying_info):
     """
@@ -124,7 +124,11 @@ def _fetch_vms_from_folder(folder):
             clean_name = transformer.clean_name(item.name)
             tenant = transformer.vm_to_tenant(clean_name)
             role = transformer.vm_to_role(clean_name)
-
+            skip = transformer.should_skip_vm(item.name)
+            
+            if skip:
+                continue  # Skip this VM
+                
             vm_interfaces = [
                 {"name": nic.deviceConfigId, "mac": nic.macAddress, "ip": nic.ipAddress[0]}
                 for nic in item.guest.net if nic.ipAddress

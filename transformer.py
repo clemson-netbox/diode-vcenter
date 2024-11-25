@@ -3,7 +3,7 @@ import yaml
 import logging
 
 class Transformer:
-    def __init__(self, host_site_rules_path, host_tenant_rules_path, vm_role_rules_path, vm_tenant_rules_path):
+    def __init__(self, host_site_rules_path, host_tenant_rules_path, vm_role_rules_path, vm_tenant_rules_path, skip_rules_path):
         """
         Initialize the Transformer with paths to regex rules for site and tenant mappings.
         """
@@ -11,6 +11,7 @@ class Transformer:
         self.host_tenant_rules = self._load_rules(host_tenant_rules_path)
         self.vm_tenant_rules = self._load_rules(vm_tenant_rules_path)
         self.vm_role_rules = self._load_rules(vm_role_rules_path)
+        self.skip_vm_rules = self.load_rules(skip_rules_path)
 
     def _load_rules(self, path):
         """
@@ -36,6 +37,16 @@ class Transformer:
 
         return value
 
+    def should_skip_vm(self, vm_name):
+        """
+        Determines if a VM should be skipped based on the skip rules.
+        """
+        for pattern in self.skip_vm_rules:
+            if re.match(pattern, vm_name, flags=re.IGNORECASE):
+                logging.info(f"Skipping VM: {vm_name} (matched pattern: {pattern})")
+                return True
+        return False
+    
     def host_to_site(self, name):
         """
         Transform a host's cluster name to its site name.
