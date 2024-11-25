@@ -118,7 +118,7 @@ def prepare_vm_data(vm_data):
                     disk_data = VirtualDisk(
                         name=disk["name"],
                         virtual_machine=vm["name"],
-                        capacity=disk["capacity"],
+                        size=disk["capacity"],
                         description=f"{disk.get('datastore', 'Unknown')} "
                                     f"{disk.get('vmdk', 'Unknown')} "
                                     f"{disk.get('thin_thick', 'Unknown')} "
