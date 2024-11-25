@@ -48,7 +48,7 @@ def prepare_cluster_data(data):
                         interface=interface_data,
                         description=f"{nic['name']} {nic['dvs_name']} {nic['portgroup_name']}"
                     )
-                    entities.append(Entity(ipaddress=ip_data))
+                    entities.append(Entity(ip_address=ip_data))
            
 
     return entities
