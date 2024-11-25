@@ -24,3 +24,6 @@ build/
 # IDEs
 .vscode/
 .idea/
+
+#rules files
+*rules.yml
