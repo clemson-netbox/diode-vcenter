@@ -21,7 +21,7 @@ class Transformer:
                 return yaml.safe_load(f)
         except Exception as e:
             logging.error(f"Failed to load rules from {path}: {e}")
-            return []
+            exit(1)
 
     def apply_regex_replacements(self, value, rules):
         """
