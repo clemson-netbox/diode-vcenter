@@ -5,6 +5,17 @@ import logging
 # Initialize Transformer with paths to regex rules
 transformer = Transformer("includes/host_site_rules.yml", "includes/host_tenant_rules.yml", "includes/vm_role_rules.yml", "includes/vm_tenant_rules.yml")
 
+def extract_serial_number(other_identifying_info):
+    """
+    Extracts the serial number from the 'otherIdentifyingInfo' list in host hardware summary.
+    Looks for an item with the 'identifierType.key' equal to 'SerialNumberTag'.
+    """
+    if other_identifying_info:
+        for item in other_identifying_info:
+            if hasattr(item, "identifierType") and item.identifierType.key == "SerialNumberTag":
+                return item.identifierValue
+    return None
+
 def fetch_cluster_data(si):
     """
     Fetches cluster information, including cluster name, parent group, and hosts.
@@ -74,14 +85,16 @@ def fetch_host_data(hosts, site_name):
                     "mac": getattr(pnic, "mac", None),
                 })
 
+            serial_number = extract_serial_number(host.summary.hardware.otherIdentifyingInfo)
+
             host_data.append({
                 "name": clean_name,
                 "site": site_name,
                 "tenant": tenant,
-                "role": "Hypervisor Host",
                 "nics": host_nics,
                 "model": host.hardware.systemInfo.model,
                 "vendor": host.hardware.systemInfo.vendor,
+                "serial_number": serial_number
             })
         except Exception as e:
             logging.error(f"Error processing host {host.name}: {e}")
