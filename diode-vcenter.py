@@ -6,8 +6,8 @@ import logging
 from dotenv import load_dotenv
 from netboxlabs.diode.sdk import DiodeClient
 from vcenter_connector import connect_to_vcenter, disconnect_vcenter
-from data_fetcher import fetch_cluster_data, fetch_vm_data
-from data_transformer import transform_cluster_data, transform_vm_data
+from vcenter_fetcher import fetch_cluster_data, fetch_vm_data
+from data_conversion import prepare_cluster_data, prepare_vm_data
 from version import __version__
 
 # Set up logging
@@ -60,7 +60,7 @@ def main():
             logging.info(f"Fetched {len(vm_data)} VMs.")
 
             logging.info("Transforming cluster data to Diode entities...")
-            cluster_entities = transform_cluster_data(cluster_data)
+            cluster_entities = prepare_cluster_data(cluster_data)
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
 
             logging.info("Ingesting cluster data into Diode...")
@@ -71,7 +71,7 @@ def main():
                 logging.info("Cluster data ingested successfully.")
 
             logging.info("Transforming VM data to Diode entities...")
-            vm_entities = transform_vm_data(vm_data)
+            vm_entities = prepare_vm_data(vm_data)
             logging.info(f"Transformed {len(vm_entities)} VM entities.")
 
             logging.info("Ingesting VM data into Diode...")

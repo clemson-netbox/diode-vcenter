@@ -1,37 +1,8 @@
 import re
 from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Entity
 
-# Utility function to apply regex transformations
-def apply_regex_replacements(value, replacements):
-    """
-    Applies a series of regex replacement rules to a given value.
-    """
-    for pattern, replacement in replacements:
-        if re.match(pattern, value, flags=re.IGNORECASE):
-            return re.sub(pattern, replacement, value, flags=re.IGNORECASE)
-    return value
 
-# Regex transformation rules for site
-SITE_REPLACEMENTS = [
-    (r"(?i)^CU-.+", "Clemson Information Technology Center"),
-    (r"(?i)^CUDR-.+|^DR-.+", "University of California San Diego"),
-    (r"(?i)^Poole-.+", "Poole Agricultural Center"),
-    (r"(?i)^Proto-.+", "Clemson Information Technology Center"),
-]
-
-def get_site_name(cluster_name):
-    """
-    Determines the site name based on the cluster name using regex transformations.
-    """
-    return apply_regex_replacements(cluster_name, SITE_REPLACEMENTS)
-
-def get_group_name(cluster_parent_name):
-    """
-    Returns the cluster group name. Currently a direct mapping.
-    """
-    return cluster_parent_name
-
-def transform_cluster_data(cluster_data):
+def prepare_cluster_data(cluster_data):
     """
     Transforms cluster and host data into Diode-compatible entities.
     """
@@ -67,7 +38,7 @@ def transform_cluster_data(cluster_data):
 
     return entities
 
-def transform_vm_data(vm_data):
+def prepare_vm_data(vm_data):
     """
     Transforms VM data into Diode-compatible VirtualMachine entities.
     """
