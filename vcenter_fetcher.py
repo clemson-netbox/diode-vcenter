@@ -208,7 +208,7 @@ def _fetch_vms_from_folder(folder):
                     "site": transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else None,
                     "cluster": vm.runtime.host.parent.name if vm.runtime.host else None,
                     "role": transformer.vm_to_role(vm.name),  # Custom logic to map VM names to roles
-                    "device": clean_name(vm.runtime.host.name),  # Host name without domain
+                    "device": transformer.clean_name(vm.runtime.host.name),  # Host name without domain
                     "platform": vm.guest.guestFullName if vm.guest and vm.guest.guestFullName else "Unknown",
                     "vcpus": vm.config.hardware.numCPU if hasattr(vm.config.hardware, "numCPU") else None,
                     "memory": vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else None,
