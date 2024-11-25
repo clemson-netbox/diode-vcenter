@@ -1,4 +1,3 @@
-vm_role:
   - ['.*adc\\d\\d', 'AD Domain Controller']
   - ['.*agt\\d\\d', 'Agent']
   - ['.*apa\\d\\d', 'Banner Application A Cluster Server']

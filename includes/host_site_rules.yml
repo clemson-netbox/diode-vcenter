@@ -1,4 +1,3 @@
-host_site:
  - ['(?i)^CU-.+', 'Clemson Information Technology Center']
  - ['(?i)^CUDR-.+|^DR-.+', 'University of California San Diego']
  - ['(?i)^Poole-.+', 'Poole Agricultural Center']

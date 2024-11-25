@@ -1,4 +1,3 @@
-host_tenant:
  - ['.*\-gen\-.*,Tiger One Card Services']
  - ['.*\-len\-.*,Infrastructure Services & Ops']
  - ['.*\-core\-.*,Infrastructure Services & Ops']

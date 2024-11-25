@@ -1,4 +1,3 @@
-tenant_mapping:
   - ["('?i)^24z.*", "VP for Economic Development"]
   - ["('?i)^252.*", "Assoc Vice President for PSA"]
   - ["('?i)^254.*", "Ag and Natural Resources"]
