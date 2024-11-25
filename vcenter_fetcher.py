@@ -3,7 +3,7 @@ from transformer import Transformer
 import logging
 
 # Initialize Transformer with paths to regex rules
-transformer = Transformer("includes/host_site_rules.yml", "includes/host_tenant_rules.yml", "includes/vm_role_rules.ym;", "incliudes/vm_tenant_rules.yml")
+transformer = Transformer("includes/host_site_rules.yml", "includes/host_tenant_rules.yml", "includes/vm_role_rules.yml", "includes/vm_tenant_rules.yml")
 
 def fetch_cluster_data(si):
     """
