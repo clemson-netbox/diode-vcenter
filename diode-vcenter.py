@@ -70,23 +70,21 @@ def main():
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
 
             logging.info("Ingesting cluster data into Diode...")
+            logging.debug(f"Cluster entities being sent: {cluster_entities}")
             ingest_with_logging(client, cluster_entities, "clusters")
 
-            # logging.info("Fetching VM data from vCenter...")
-            # vm_data = fetch_vm_data(si)
-            # logging.info(f"Fetched {len(vm_data)} VMs.")
+            logging.info("Fetching VM data from vCenter...")
+            vm_data = fetch_vm_data(si)
+            logging.info(f"Fetched {len(vm_data)} VMs.")
 
-            # logging.info("Transforming VM data to Diode entities...")
-            # vm_entities = prepare_vm_data(vm_data)
-            # logging.info(f"Transformed {len(vm_entities)} VM entities.")
+            logging.info("Transforming VM data to Diode entities...")
+            vm_entities = prepare_vm_data(vm_data)
+            logging.info(f"Transformed {len(vm_entities)} VM entities.")
 
-            # logging.info("Ingesting VM data into Diode...")
-            # ingest_with_logging(client, vm_entities, "VMs")
-            # if vm_response.errors:
-            #     logging.error(f"VM Errors: {vm_response.errors}")
-            # else:
-            #     logging.info("VM data ingested successfully.")
-
+            logging.info("Ingesting VM data into Diode...")
+            logging.debug(f"VM entities being sent: {vm_entities}")
+            ingest_with_logging(client, vm_entities, "VMs")
+            
         except Exception as e:
             logging.error(f"An error occurred during the process: {e}")
         finally:

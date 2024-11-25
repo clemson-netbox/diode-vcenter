@@ -1,20 +1,21 @@
 import re
-from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, Entity
+from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Entity
 
 
-def prepare_cluster_data(cluster_data):
+def prepare_cluster_data(data):
     """
     Transforms cluster and host data into Diode-compatible entities.
     """
     entities = []
 
-    for cluster in cluster_data:
+    for cluster in data:
+        
         cluster_entity = Cluster(
             name=cluster['name'],
             group=cluster['group'],
+            type="VMWare",
             site=cluster['site'],
             status='active',
-            tags=["Diode"],
         )
         entities.append(Entity(cluster=cluster_entity))
                     
@@ -29,7 +30,6 @@ def prepare_cluster_data(cluster_data):
                 serial=host["serial_number"],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
-                tags=["Diode"],
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
             entities.append(Entity(device=device_data))
@@ -37,11 +37,19 @@ def prepare_cluster_data(cluster_data):
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
-                    device=device_data,  
+                    device=host["name"],  
                     mac_address=nic["mac"],
                     type=nic["type"],
                 )       
                 entities.append(Entity(interface=interface_data))
+                for ip in nic['ip_addresses']:
+                    ip_data = IPAddress(
+                        address=ip,
+                        interface=interface_data,
+                        description=f"{nic['name']} {nic['dvs_name']} {nic['portgroup_name']}"
+                    )
+                    entities.append(Entity(ipaddress=ip_data))
+           
 
     return entities
 
@@ -52,26 +60,43 @@ def prepare_vm_data(vm_data):
     entities = []
 
     for vm in vm_data:
-        # Prepare NICs as interfaces
-        interfaces = [
-            {"name": nic["name"], "mac_address": nic["mac"], "ip_addresses": [nic["ip"]]}
-            for nic in vm["interfaces"]
-        ]
-
-        # Prepare disks as storage devices
-        disks = [{"name": disk["label"], "capacity": disk["capacity"]} for disk in vm["disks"]]
 
         # Create VirtualMachine entity for each VM
         virtual_machine = VirtualMachine(
             name=vm["name"],
             cluster=vm["cluster"],
+            device=vm['device'],
+            platform=vm['platform'],
+            vcpus=vm['vcpus'],
+            memory=vm['memory'],
             site=vm["site"],
             role=vm['role'],
-            status="active",
+            status=vm['status'],
             tags=["Diode"],
-            #interfaces=interfaces,  # VM NICs as interfaces
-            #disks=disks,  # VM disks directly in the flat structure
         )
         entities.append(Entity(virtual_machine=virtual_machine))
+        
+        for nic in vm["interfaces"]:
+            interface_data = Interface(
+                name=nic["name"], 
+                virtual_machine=vm["name"],  
+                mac_address=nic["mac"],
+                enabled=nic["enabled"]
+            ) 
+            entities.append(Entity(vminterface=interface_data))
+            # for ip in nic['ipaddress']:
+            #     ip_data= IPAddress(
+            #         address=ip,
+            #         virtual_machine= vm['name']
+            #     )
+            #     entities.append(Entity(ipaddress=ip_data))
+            for disk in vm["disks"]:
+                disk = VirtualDisk(
+                    name=disk['label'],
+                    virtual_machine=vm['name'],
+                    capacity=disk['capacity]'],
+                    description=disk['description']
+                )
+                entities.append(Entity(vmirtual_disk=disk))
 
     return entities
