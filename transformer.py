@@ -23,13 +23,17 @@ class Transformer:
             logging.error(f"Failed to load rules from {path}: {e}")
             exit(1)
 
-    def apply_regex_replacements(self, value, rules):
-        """
-        Apply a list of regex replacements to a given value.
-        """
-        for pattern, replacement in rules:
+    def apply_regex_replacements(value, rules):
+        for rule in rules:
+            # Validate rule structure
+            if len(rule) != 2:
+                logging.error(f"Malformed rule: {rule}")
+                continue
+
+            pattern, replacement = rule
             if re.match(pattern, value, flags=re.IGNORECASE):
                 return re.sub(pattern, replacement, value, flags=re.IGNORECASE)
+
         return value
 
     def host_to_site(self, name):
