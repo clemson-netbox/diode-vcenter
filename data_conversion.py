@@ -1,5 +1,5 @@
 import re
-from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VMDisk, Entity
+from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, Entity
 
 
 def prepare_cluster_data(cluster_data):
