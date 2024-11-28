@@ -105,11 +105,7 @@ def main():
             logging.info("Transforming cluster data to Diode entities...")
             cluster_entities = prepare_cluster_data(cluster_data)
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
-
-            logging.info("Ingesting cluster data into Diode...")
-            logging.debug(f"Cluster entities being sent: {cluster_entities}")
-            ingest_with_logging(client, cluster_entities, "clusters")
-
+            
             logging.info("Fetching VM data from vCenter...")
             vm_data = fetch_vm_data(si)
             logging.info(f"Fetched {len(vm_data)} VMs.")
@@ -117,10 +113,11 @@ def main():
             logging.info("Transforming VM data to Diode entities...")
             vm_entities = prepare_vm_data(vm_data)
             logging.info(f"Transformed {len(vm_entities)} VM entities.")
-
+            cluster_entities.extend(vm_entities)
+            
             logging.info("Ingesting VM data into Diode...")
             logging.debug(f"VM entities being sent: {vm_entities}")
-            ingest_with_logging(client, vm_entities, "VMs")
+            ingest_with_logging(client, cluster_entities, "VMs")
             
         except Exception as e:
             logging.error(f"An error occurred during the process: {e}")
