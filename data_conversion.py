@@ -37,7 +37,6 @@ def prepare_cluster_data(data):
 
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
-            entities.append(Entity(device=device_data))   
             #TODO: Create prefixes and VLANs for networks
             for nic in host["nics"]:
                 interface_data = Interface(
