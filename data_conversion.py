@@ -97,7 +97,7 @@ def prepare_data(client,data,vm_data,logging):
                 try:
                     interface_data = VMInterface(
                         name=nic["name"],
-                        description=f"{vm["name"]} {nic["name"]}",                
+                        description=f"{vm["name"]}: {nic["name"]}",                
                         virtual_machine=virtual_machine,
                         mac_address=nic["mac"],
                         enabled=nic["enabled"],
