@@ -1,6 +1,5 @@
 from pyVmomi import vim
 from transformer import Transformer
-import logging
 from ipaddress import IPv4Network
 
 # Initialize Transformer with paths to regex rules
@@ -17,7 +16,7 @@ def extract_serial_number(other_identifying_info):
                 return item.identifierValue
     return None
 
-def fetch_cluster_data(si):
+def fetch_cluster_data(si,logging):
     """
     Fetches cluster information, including cluster name, parent group, and hosts.
     Applies transformations to determine site names.
@@ -162,7 +161,7 @@ def fetch_host_data(hosts, site_name):
             logging.error(f"Error processing host {host.name}: {e}")
     return host_data
 
-def fetch_vm_data(si):
+def fetch_vm_data(si,logging):
     """
     Fetches VM information, applies transformations for cleaning and tenant mapping.
     """

@@ -1,8 +1,7 @@
 import re
 from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Entity
-import logging
 
-def prepare_cluster_data(data):
+def prepare_cluster_data(data,logging):
     """
     Transforms cluster and host data into Diode-compatible entities.
     """
@@ -61,7 +60,7 @@ def prepare_cluster_data(data):
 
     return entities
 
-def prepare_vm_data(vm_data):
+def prepare_vm_data(vm_data,logging):
     """
     Transforms VM data into Diode-compatible VirtualMachine entities.
     """

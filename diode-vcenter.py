@@ -10,12 +10,6 @@ from vcenter_fetcher import fetch_cluster_data, fetch_vm_data
 from data_conversion import prepare_cluster_data, prepare_vm_data
 from version import __version__
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,  # Change to logging.DEBUG for more verbosity
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
-
 # Load .env file
 load_dotenv()
 
@@ -65,7 +59,11 @@ def parse_arguments():
         type=lambda x: x.lower() in ("true", "1", "yes"),
         help="Verify Catalyst Center SSL certificate (default: true, or set via VCENTER_VERIFY environment variable)"
     )
-
+    parser.add_argument(
+        "--log-level",
+        default=os.getenv("LOG_LEVEL", "INFO"),
+        help="Logging Level INFO, WARNING, ERROR, DEBUG"
+    )
     return parser.parse_args()
 
 
@@ -82,6 +80,11 @@ def ingest_with_logging(client, entities, entity_type):
 def main():
     # Parse arguments
     args = parse_arguments()
+    # Configure logging
+    logging.basicConfig(
+        level=args.log_level,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
     logging.info("Starting Diode vCenter Agent...")
 
@@ -99,19 +102,19 @@ def main():
     ) as client:
         try:
             logging.info("Fetching cluster data from vCenter...")
-            cluster_data = fetch_cluster_data(si)
+            cluster_data = fetch_cluster_data(si,logging)
             logging.info(f"Fetched {len(cluster_data)} clusters.")
 
             logging.info("Transforming cluster data to Diode entities...")
-            cluster_entities = prepare_cluster_data(cluster_data)
+            cluster_entities = prepare_cluster_data(cluster_data,logging)
             logging.info(f"Transformed {len(cluster_entities)} cluster entities.")
             
             logging.info("Fetching VM data from vCenter...")
-            vm_data = fetch_vm_data(si)
+            vm_data = fetch_vm_data(si,logging)
             logging.info(f"Fetched {len(vm_data)} VMs.")
 
             logging.info("Transforming VM data to Diode entities...")
-            vm_entities = prepare_vm_data(vm_data)
+            vm_entities = prepare_vm_data(vm_data,logging)
             logging.info(f"Transformed {len(vm_entities)} VM entities.")
             cluster_entities.extend(vm_entities)
             
