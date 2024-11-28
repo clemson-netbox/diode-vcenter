@@ -157,7 +157,7 @@ def prepare_data(client,data,vm_data,logging):
             if response.errors:
                 logging.error(f"Diode Ingestion Errors: {response.errors}")
             else:
-                logging.info(f"Successfully ingested {len(entities)}.")
+                logging.info(f"Successfully ingested {len(entities)} Entities.")
         except Exception as e:
             logging.error(f"Error during ingestion: {e}")
         entities=[]
