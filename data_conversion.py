@@ -1,11 +1,13 @@
 import re
 from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Entity
 
-def prepare_cluster_data(data,logging):
+def prepare_data(data,vm_data,logging):
     """
     Transforms cluster and host data into Diode-compatible entities.
     """
     entities = []
+    cluster_cache={}
+    host_cache={}
 
     for cluster in data:
         
@@ -18,6 +20,7 @@ def prepare_cluster_data(data,logging):
             tags=["Diode-vCenter-Agent"],
 
         )
+        cluster_cache[cluster['name']]=cluster_entity
         entities.append(Entity(cluster=cluster_entity))
                     
         for host in cluster["hosts"]:
@@ -36,6 +39,8 @@ def prepare_cluster_data(data,logging):
 
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
+            host_cache[host['name']]=host_entity
+
             #TODO: Create prefixes and VLANs for networks
             for nic in host["nics"]:
                 interface_data = Interface(
@@ -58,22 +63,13 @@ def prepare_cluster_data(data,logging):
                     )
                     entities.append(Entity(ip_address=ip_data))
            
-
-    return entities
-
-def prepare_vm_data(vm_data,logging):
-    """
-    Transforms VM data into Diode-compatible VirtualMachine entities.
-    """
-    entities = []
-
     for vm in vm_data:
         try:
             # Create VirtualMachine entity for each VM
             virtual_machine = VirtualMachine(
                 name=vm["name"],
-                cluster=vm["cluster"],
-                device=vm["device"],
+                cluster=cluster_cache[vm["cluster"]],
+                device=host_cache[vm["device"]],
                 platform=vm["platform"],
                 vcpus=vm["vcpus"],
                 memory=vm["memory"],
