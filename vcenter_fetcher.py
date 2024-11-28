@@ -189,10 +189,11 @@ def fetch_vm_data(si,logging):
                                     ip_config = getattr(net, 'ipConfig', None)
                                     if ip_config and hasattr(ip_config, 'ipAddress'):
                                         for ip in ip_config.ipAddress:
+                                            logging.debug(f"{ip_config}: {ip}")
                                             if ':' in ip.ipAddress:
                                                 ipv6_addresses.append({"address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', '48') })
                                             else:
-                                                ipv4_addresses.append({"adddress": ip.ipAddress, "prefix_length": IPv4Network(f"0.0.0.0/{ip.subnetMask}").prefixlen})
+                                                ipv4_addresses.append({"adddress": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', '24') })
                                 interface = {
                                     "vm_name": vm.name, 
                                     "name": device.deviceInfo.label,
