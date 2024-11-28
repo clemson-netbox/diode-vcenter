@@ -40,7 +40,8 @@ def prepare_cluster_data(data,logging):
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
-                    device=device_data,  
+                    device=device_data, 
+                    description=f"{host['name']} {nic['name']} {nic['portgroup_name']}",
                     mac_address=nic["mac"],
                     type=nic["type"],
                     tags=["Diode-vCenter-Agent"],
@@ -51,7 +52,7 @@ def prepare_cluster_data(data,logging):
                     ip_data = IPAddress(
                         address=ip,
                         interface=interface_data,
-                        description=f"{nic['name']} {nic['portgroup_name']}",
+                        description=f"{host['name']} {nic['name']} {nic['portgroup_name']}",
                         tags=["Diode-vCenter-Agent"],
 
                     )
@@ -87,6 +88,7 @@ def prepare_vm_data(vm_data,logging):
                 try:
                     interface_data = VMInterface(
                         name=nic["name"],
+                        description=f"{vm["name"]} {nic["name"]}",                
                         virtual_machine=virtual_machine,
                         mac_address=nic["mac"],
                         enabled=nic["enabled"],
