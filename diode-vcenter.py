@@ -42,25 +42,25 @@ def parse_arguments():
         help="Diode API token (or set via DIODE_API_KEY environment variable)"
     )
     parser.add_argument(
-        "--VCENTER-host",
+        "--vcenter-host",
         default=os.getenv("VCENTER_HOST"),
         required=not os.getenv("VCENTER_HOST"),
         help="Catalyst Center host (or set via VCENTER_HOST environment variable)"
     )
     parser.add_argument(
-        "--VCENTER-user",
+        "--vcenter-user",
         default=os.getenv("VCENTER_USER"),
         required=not os.getenv("VCENTER_USER"),
         help="Catalyst Center username (or set via VCENTER_USER environment variable)"
     )
     parser.add_argument(
-        "--VCENTER-password",
+        "--vcenter-password",
         default=os.getenv("VCENTER_PASSWORD"),
         required=not os.getenv("VCENTER_PASSWORD"),
         help="Catalyst Center password (or set via VCENTER_PASSWORD environment variable)"
     )
     parser.add_argument(
-        "--VCENTER-verify",
+        "--vcenter-verify",
         default=os.getenv("VCENTER_VERIFY", "true").lower() in ("true", "1", "yes"),
         type=lambda x: x.lower() in ("true", "1", "yes"),
         help="Verify Catalyst Center SSL certificate (default: true, or set via VCENTER_VERIFY environment variable)"
