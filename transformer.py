@@ -35,7 +35,7 @@ class Transformer:
             if re.match(pattern, value, flags=re.IGNORECASE):
                 return re.sub(pattern, replacement, value, flags=re.IGNORECASE)
 
-        return value
+        return "Unknown"
 
     def should_skip_vm(self, vm_name):
         """

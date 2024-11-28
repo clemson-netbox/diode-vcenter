@@ -105,4 +105,3 @@
   - ['.*sml[0-9]+$', 'Security Assertion Markup Language (SAML)']
   - ['.*smt[0-9]+$', 'SLES Subscription Management Tool']
   - ['.*snd[0-9]+$', 'Sandbox']
-  - ['.+-.+','Unknown']
