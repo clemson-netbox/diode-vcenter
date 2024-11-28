@@ -39,7 +39,7 @@ def prepare_data(data,vm_data,logging):
 
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
-            host_cache[host['name']]=host_entity
+            host_cache[host['name']]=device_data
 
             #TODO: Create prefixes and VLANs for networks
             for nic in host["nics"]:
