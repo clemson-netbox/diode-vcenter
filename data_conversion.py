@@ -36,9 +36,7 @@ def prepare_cluster_data(data):
                 tags=["Diode-vCenter-Agent"],
 
                 #interfaces=interfaces,  # Host NICs as interfaces
-            )
-            entities.append(Entity(device=device_data))
-            
+            )            
             #TODO: Create prefixes and VLANs for networks
             for nic in host["nics"]:
                 interface_data = Interface(
@@ -48,7 +46,7 @@ def prepare_cluster_data(data):
                     type=nic["type"],
                     tags=["Diode-vCenter-Agent"],
 
-                )       
+                )
                 entities.append(Entity(interface=interface_data))
                 for ip in nic['ip_addresses']:
                     ip_data = IPAddress(
