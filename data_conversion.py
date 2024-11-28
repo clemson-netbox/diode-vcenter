@@ -17,7 +17,7 @@ def prepare_data(client,data,vm_data,logging):
             type="VMWare",
             site=cluster['site'],
             status='active',
-            tags=["Diode-vCenter-Agent"],
+            tags=["Diode-vCenter-Agent",'Diode'],
 
         )
         cluster_cache[cluster['name']]=cluster_entity
@@ -35,7 +35,7 @@ def prepare_data(client,data,vm_data,logging):
                 serial=host["serial_number"],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
-                tags=["Diode-vCenter-Agent"],
+                tags=["Diode-vCenter-Agent",'Diode'],
 
                 #interfaces=interfaces,  # Host NICs as interfaces
             )
@@ -49,7 +49,7 @@ def prepare_data(client,data,vm_data,logging):
                     description=f"{host['name']} {nic['name']} {nic['portgroup_name']}",
                     mac_address=nic["mac"],
                     type=nic["type"],
-                    tags=["Diode-vCenter-Agent"],
+                    tags=["Diode-vCenter-Agent",'Diode'],
 
                 )       
                 entities.append(Entity(interface=interface_data))
@@ -58,7 +58,7 @@ def prepare_data(client,data,vm_data,logging):
                         address=ip,
                         interface=interface_data,
                         description=f"{host['name']} {nic['name']} {nic['portgroup_name']}",
-                        tags=["Diode-vCenter-Agent"],
+                        tags=["Diode-vCenter-Agent",'Diode'],
 
                     )
                     entities.append(Entity(ip_address=ip_data))
@@ -89,7 +89,7 @@ def prepare_data(client,data,vm_data,logging):
                 site=vm["site"],
                 role=vm["role"],
                 status=vm["status"],
-                tags=["Diode-vCenter-Agent"],
+                tags=["Diode-vCenter-Agent",'Diode'],
             )
             entities.append(Entity(virtual_machine=virtual_machine))
             
@@ -101,7 +101,7 @@ def prepare_data(client,data,vm_data,logging):
                         virtual_machine=virtual_machine,
                         mac_address=nic["mac"],
                         enabled=nic["enabled"],
-                        tags=["Diode-vCenter-Agent"],
+                        tags=["Diode-vCenter-Agent",'Diode'],
                     )
                     entities.append(Entity(vminterface=interface_data))
                     
@@ -112,6 +112,7 @@ def prepare_data(client,data,vm_data,logging):
                             address=nic["ipv4_address"]["address"],
                             description=f"{vm['name']} {nic['name']}",
                             status="active",
+                            tags=["Diode-vCenter-Agent",'Diode'],
                         )
                         entities.append(Entity(ip_address=ip_data))
                         
@@ -121,6 +122,8 @@ def prepare_data(client,data,vm_data,logging):
                             address=nic["ipv6_address"]["address"],
                             description=f"{vm['name']} {nic['name']}",
                             status="active",
+                            tags=["Diode-vCenter-Agent",'Diode'],
+
                         )
                         entities.append(Entity(ip_address=ip_data))
                 except KeyError as e:
@@ -137,7 +140,7 @@ def prepare_data(client,data,vm_data,logging):
                                     f"{disk.get('vmdk', 'Unknown')} "
                                     f"{disk.get('thin_thick', 'Unknown')} "
                                     f"{disk.get('disk_type', 'Unknown')}",
-                        tags=["Diode-vCenter-Agent"],
+                        tags=["Diode-vCenter-Agent",'Diode'],
                     )
                     entities.append(Entity(virtual_disk=disk_data))
                 except KeyError as e:
