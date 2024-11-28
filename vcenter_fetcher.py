@@ -190,9 +190,9 @@ def fetch_vm_data(si,logging):
                                     if ip_config and hasattr(ip_config, 'ipAddress'):
                                         for ip in ip_config.ipAddress:
                                             if ':' in ip.ipAddress:
-                                                ipv6_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
+                                                ipv6_addresses.append({"address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', '48') })
                                             else:
-                                                ipv4_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
+                                                ipv4_addresses.append({"adddress": ip.ipAddress, "prefix_length": IPv4Network(f"0.0.0.0/{ip.subnetMask}").prefixlen})
                                 interface = {
                                     "vm_name": vm.name, 
                                     "name": device.deviceInfo.label,

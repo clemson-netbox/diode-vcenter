@@ -24,6 +24,17 @@ class Transformer:
             logging.error(f"Failed to load rules from {path}: {e}")
             exit(1)
 
+    def get_cidr(self,ip, subnet_mask):
+            """
+            Convert IP and subnet mask into CIDR notation.
+            """
+            from ipaddress import ip_network
+            try:
+                network = ip_network(f"{ip}/{subnet_mask}", strict=False)
+                return str(network)
+            except ValueError:
+                return None
+            
     def apply_regex_replacements(self, value, rules):
         for rule in rules:
             # Validate rule structure
