@@ -1,6 +1,7 @@
 import re
 import yaml
 import logging
+import ipaddress
 
 class Transformer:
     def __init__(self, host_site_rules_path, host_tenant_rules_path, vm_role_rules_path, vm_tenant_rules_path, skip_rules_path):
@@ -25,26 +26,28 @@ class Transformer:
             exit(1)
 
     def get_cidr(self,ip, subnet_mask):
-            """
-            Convert IP and subnet mask into CIDR notation.
-            """
-            from ipaddress import ip_network
-            try:
-                network = ip_network(f"{ip}/{subnet_mask}", strict=False)
-                return str(network)
-            except ValueError:
-                return None
+        try:
+            network = ipaddress.ip_network(f"{ip}/{subnet_mask}", strict=False)
+            return str(network)
+        except ValueError:
+            logging.error(f"CIDR error {ip} {subnet_mask}: {e}")
+            return None
             
     def apply_regex_replacements(self, value, rules):
-        for rule in rules:
-            # Validate rule structure
-            if len(rule) != 2:
-                logging.error(f"Malformed rule: {rule}")
-                continue
+        try:
+            for rule in rules:
+                # Validate rule structure
+                if len(rule) != 2:
+                    logging.error(f"Malformed rule: {rule}")
+                    continue
 
-            pattern, replacement = rule
-            if re.match(pattern, value, flags=re.IGNORECASE):
-                return re.sub(pattern, replacement, value, flags=re.IGNORECASE)
+                pattern, replacement = rule
+                if re.match(pattern, value, flags=re.IGNORECASE):
+                    return re.sub(pattern, replacement, value, flags=re.IGNORECASE)
+        except re.error as e:
+            # Handle regex errors gracefully
+            logging.error(f"Regex error {value} {rule}: {e}")
+            return "Unknown"
 
         return "Unknown"
 
