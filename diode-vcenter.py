@@ -110,12 +110,9 @@ def main():
             logging.info(f"Fetched {len(vm_data)} VMs.")
 
             logging.info("Transforming VM data to Diode entities...")
-            entities = prepare_data(cluster_data,vm_data,logging)
+            entities = prepare_data(client,cluster_data,vm_data,logging)
             logging.info(f"Transformed {len(entities)} entities.")
             
-            logging.info("Ingesting VM data into Diode...")
-            logging.debug(f"Total entities being sent: {entities}")
-            ingest_with_logging(client, entities, "VMs")
             
         except Exception as e:
             logging.error(f"An error occurred during the process: {e}")

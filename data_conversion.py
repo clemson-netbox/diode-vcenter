@@ -1,7 +1,7 @@
 import re
 from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Entity
 
-def prepare_data(data,vm_data,logging):
+def prepare_data(client,data,vm_data,logging):
     """
     Transforms cluster and host data into Diode-compatible entities.
     """
@@ -63,6 +63,19 @@ def prepare_data(data,vm_data,logging):
                     )
                     entities.append(Entity(ip_address=ip_data))
            
+        logging.info("Ingesting Cluster/Host data into Diode...")
+        logging.debug(f"Total entities being sent: {entities}")
+        try:
+            response = client.ingest(entities=entities)
+            if response.errors:
+                logging.error(f"Diode Ingestion Errors: {response.errors}")
+            else:
+                logging.info(f"Successfully ingested {len(entities)}.")
+        except Exception as e:
+            logging.error(f"Error during ingestion: {e}")
+        entities=[]
+                
+                
     for vm in vm_data:
         try:
             # Create VirtualMachine entity for each VM
@@ -133,5 +146,17 @@ def prepare_data(data,vm_data,logging):
         except KeyError as e:
             logging.error(f"Error processing VM: Missing key {e}")
             continue
+        
+        logging.info("Ingesting VM data into Diode...")
+        logging.debug(f"Total entities being sent: {entities}")
+        try:
+            response = client.ingest(entities=entities)
+            if response.errors:
+                logging.error(f"Diode Ingestion Errors: {response.errors}")
+            else:
+                logging.info(f"Successfully ingested {len(entities)}.")
+        except Exception as e:
+            logging.error(f"Error during ingestion: {e}")
+        entities=[]
 
     return entities
