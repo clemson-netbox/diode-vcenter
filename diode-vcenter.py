@@ -111,7 +111,7 @@ def main():
 
             logging.info("Transforming VM data to Diode entities...")
             entities = prepare_data(cluster_data,vm_data,logging)
-            logging.info(f"Transformed {len(vm_entities)} VM entities.")
+            logging.info(f"Transformed {len(entities)} entities.")
             
             logging.info("Ingesting VM data into Diode...")
             logging.debug(f"Total entities being sent: {entities}")
