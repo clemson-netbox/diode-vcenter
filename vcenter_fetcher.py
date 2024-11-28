@@ -37,7 +37,7 @@ def fetch_cluster_data(si,logging):
                 # Check if the cluster has hosts
                 if hasattr(cluster, "host") and cluster.host:
                     logging.debug(f"Cluster {cluster.name} has {len(cluster.host)} hosts.")
-                    hosts = fetch_host_data(cluster.host, site_name)
+                    hosts = fetch_host_data(cluster.host, site_name, logging)
                 else:
                     logging.warning(f"Cluster {cluster.name} has no hosts.")
                     hosts = []
@@ -58,38 +58,38 @@ def fetch_cluster_data(si,logging):
     logging.info(f"Fetched {len(clusters)} clusters from vCenter.")
     return clusters
 
-def get_nic_type(link_speed):
-    """
-    Maps link speed in Mbps to NIC type based on predefined replacements.
-    """
-    if link_speed is None:
-        return "other"
-    
-    #TODO: find a more accurate way to specific actual phy type
-    link_speed_map = {
-        1000: "1000base-t",
-        10000: "10gbase-x-sfpp",
-        25000: "25gbase-x-sfp28",
-        40000: "40gbase-x-qsfpp",
-        100000: "100gbase-x-qsfp28",
-    }
-    return link_speed_map.get(link_speed, "other")
 
-def get_cidr(ip, subnet_mask):
-    """
-    Converts an IP address and subnet mask to CIDR notation (x.x.x.x/y).
-    """
-    try:
-        prefix_length = IPv4Network(f"0.0.0.0/{subnet_mask}").prefixlen
-        return f"{ip}/{prefix_length}"
-    except Exception as e:
-        logging.error(f"Failed to convert {ip} and {subnet_mask} to CIDR: {e}")
-        return None
     
-def fetch_host_data(hosts, site_name):
-    """
-    Fetches host information, applies transformations for cleaning and tenant mapping.
-    """
+def fetch_host_data(hosts, site_name, logging):
+
+    def _get_nic_type(link_speed):
+        """
+        Maps link speed in Mbps to NIC type based on predefined replacements.
+        """
+        if link_speed is None:
+            return "other"
+        
+        #TODO: find a more accurate way to specific actual phy type
+        link_speed_map = {
+            1000: "1000base-t",
+            10000: "10gbase-x-sfpp",
+            25000: "25gbase-x-sfp28",
+            40000: "40gbase-x-qsfpp",
+            100000: "100gbase-x-qsfp28",
+        }
+        return link_speed_map.get(link_speed, "other")
+
+    def _get_cidr(ip, subnet_mask):
+        """
+        Converts an IP address and subnet mask to CIDR notation (x.x.x.x/y).
+        """
+        try:
+            prefix_length = IPv4Network(f"0.0.0.0/{subnet_mask}").prefixlen
+            return f"{ip}/{prefix_length}"
+        except Exception as e:
+            logging.error(f"Failed to convert {ip} and {subnet_mask} to CIDR: {e}")
+            return None
+        
     logging.info(f"Fetching details for {len(hosts)} hosts...")
     host_data = []
     for host in hosts:
@@ -110,7 +110,7 @@ def fetch_host_data(hosts, site_name):
                     for ip in vnic.spec.ip.ipAddress.split(','):
                         subnet_mask = vnic.spec.ip.subnetMask if hasattr(vnic.spec.ip, 'subnetMask') else None
                         if subnet_mask:
-                            cidr = get_cidr(ip, subnet_mask)
+                            cidr = _get_cidr(ip, subnet_mask)
                             if cidr:
                                 ip_addresses.append(cidr)
                         else:
@@ -129,7 +129,7 @@ def fetch_host_data(hosts, site_name):
             # Process pNICs (Physical NICs)
             for pnic in host.config.network.pnic:
                 link_speed = pnic.linkSpeed.speedMb if pnic.linkSpeed else None
-                nic_type = get_nic_type(link_speed)
+                nic_type = _get_nic_type(link_speed)
                 
                 #TODO: Don't assume pNics have no IP
 
@@ -165,6 +165,77 @@ def fetch_vm_data(si,logging):
     """
     Fetches VM information, applies transformations for cleaning and tenant mapping.
     """
+    def _fetch_vms_from_folder(folder):
+        """
+        Recursively fetches VMs from a folder and its subfolders, applying transformations.
+        """
+        vms = []
+        for vm in folder.childEntity:
+            if isinstance(vm, vim.VirtualMachine):
+                logging.info(f"Processing VM: {vm.name}")
+                skip = transformer.should_skip_vm(vm.name)
+                
+                if skip:
+                    continue  # Skip this VM
+            
+                vm_interfaces = []    
+                for net in vm.guest.net:
+                    if hasattr(vm, 'config') and hasattr(vm.config, 'hardware'):
+                        for device in vm.config.hardware.device:
+                            if isinstance(device, vim.vm.device.VirtualEthernetCard):
+                                ipv4_addresses = []
+                                ipv6_addresses = []
+                                if net.macAddress == device.macAddress:
+                                    ip_config = getattr(net, 'ipConfig', None)
+                                    if ip_config and hasattr(ip_config, 'ipAddress'):
+                                        for ip in ip_config.ipAddress:
+                                            if ':' in ip.ipAddress:
+                                                ipv6_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
+                                            else:
+                                                ipv4_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
+                                interface = {
+                                    "vm_name": vm.name, 
+                                    "name": device.deviceInfo.label,
+                                    "mac": device.macAddress if hasattr(device, 'macAddress') else None,
+                                    "enabled": device.connectable.connected if hasattr(device, 'connectable') else False,
+                                    "ipv4_address": ipv4_addresses[0] if len(ipv4_addresses) > 0 else None,
+                                    "ipv6_address": ipv6_addresses[0] if len(ipv6_addresses) > 0 else None,
+                                }
+                                vm_interfaces.append(interface)
+                
+                vm_disks = [
+                    {
+                    "name": disk.deviceInfo.label, 
+                    "capacity": round(disk.capacityInKB / 1024), 
+                    "datastore": disk.backing.datastore.name, 
+                    "vmdk": disk.backing.fileName,
+                    "disk_type": disk.backing.diskMode, 
+                    "thin_thick": "Thin" if hasattr(disk.backing, 'thinProvisioned') else "Thick" 
+                    } for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
+                ]
+                
+                vms.append({
+                        "name": vm.name,
+                        "status": "active" if vm.runtime.powerState == "poweredOn" else "offline",
+                        "site": transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else None,
+                        "cluster": vm.runtime.host.parent.name if vm.runtime.host else None,
+                        "role": transformer.vm_to_role(vm.name),  # Custom logic to map VM names to roles
+                        "device": transformer.clean_name(vm.runtime.host.name),  # Host name without domain
+                        "platform": vm.guest.guestFullName if vm.guest and vm.guest.guestFullName else "Unknown",
+                        "vcpus": vm.config.hardware.numCPU if hasattr(vm.config.hardware, "numCPU") else None,
+                        "memory": vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else None,
+                        "description": vm.summary.config.annotation if vm.summary.config.annotation else None,
+                        "comments": None,  # Placeholder for any comments
+                        "interfaces": vm_interfaces,  # List of NICs
+                        "disks": vm_disks,  # List of disks
+                    })
+
+                
+            elif isinstance(vm, vim.Folder):
+                # Recursively process subfolders
+                vms.extend(_fetch_vms_from_folder(vm))
+        return vms
+
     logging.info("Fetching VMs from vCenter...")
     content = si.RetrieveContent()
     vms = []
@@ -174,73 +245,4 @@ def fetch_vm_data(si,logging):
     logging.info(f"Fetched {len(vms)} VMs from vCenter.")
     return vms
 
-def _fetch_vms_from_folder(folder):
-    """
-    Recursively fetches VMs from a folder and its subfolders, applying transformations.
-    """
-    vms = []
-    for vm in folder.childEntity:
-        if isinstance(vm, vim.VirtualMachine):
-            logging.info(f"Processing VM: {vm.name}")
-            skip = transformer.should_skip_vm(vm.name)
-            
-            if skip:
-                continue  # Skip this VM
-         
-            vm_interfaces = []    
-            for net in vm.guest.net:
-                if hasattr(vm, 'config') and hasattr(vm.config, 'hardware'):
-                    for device in vm.config.hardware.device:
-                        if isinstance(device, vim.vm.device.VirtualEthernetCard):
-                            ipv4_addresses = []
-                            ipv6_addresses = []
-                            if net.macAddress == device.macAddress:
-                                ip_config = getattr(net, 'ipConfig', None)
-                                if ip_config and hasattr(ip_config, 'ipAddress'):
-                                    for ip in ip_config.ipAddress:
-                                        if ':' in ip.ipAddress:
-                                            ipv6_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
-                                        else:
-                                            ipv4_addresses.append({ "address": ip.ipAddress, "prefix_length": getattr(ip, 'prefixLength', None) })
-                            interface = {
-                                "vm_name": vm.name, 
-                                "name": device.deviceInfo.label,
-                                "mac": device.macAddress if hasattr(device, 'macAddress') else None,
-                                "enabled": device.connectable.connected if hasattr(device, 'connectable') else False,
-                                "ipv4_address": ipv4_addresses[0] if len(ipv4_addresses) > 0 else None,
-                                "ipv6_address": ipv6_addresses[0] if len(ipv6_addresses) > 0 else None,
-                            }
-                            vm_interfaces.append(interface)
-            
-            vm_disks = [
-                {
-                "name": disk.deviceInfo.label, 
-                "capacity": round(disk.capacityInKB / 1024), 
-                "datastore": disk.backing.datastore.name, 
-                "vmdk": disk.backing.fileName,
-                "disk_type": disk.backing.diskMode, 
-                "thin_thick": "Thin" if hasattr(disk.backing, 'thinProvisioned') else "Thick" 
-                } for disk in vm.config.hardware.device if hasattr(disk, "capacityInKB")
-            ]
-            
-            vms.append({
-                    "name": vm.name,
-                    "status": "active" if vm.runtime.powerState == "poweredOn" else "offline",
-                    "site": transformer.host_to_site(vm.runtime.host.name) if vm.runtime.host else None,
-                    "cluster": vm.runtime.host.parent.name if vm.runtime.host else None,
-                    "role": transformer.vm_to_role(vm.name),  # Custom logic to map VM names to roles
-                    "device": transformer.clean_name(vm.runtime.host.name),  # Host name without domain
-                    "platform": vm.guest.guestFullName if vm.guest and vm.guest.guestFullName else "Unknown",
-                    "vcpus": vm.config.hardware.numCPU if hasattr(vm.config.hardware, "numCPU") else None,
-                    "memory": vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else None,
-                    "description": vm.summary.config.annotation if vm.summary.config.annotation else None,
-                    "comments": None,  # Placeholder for any comments
-                    "interfaces": vm_interfaces,  # List of NICs
-                    "disks": vm_disks,  # List of disks
-                })
-
-            
-        elif isinstance(vm, vim.Folder):
-            # Recursively process subfolders
-            vms.extend(_fetch_vms_from_folder(vm))
-    return vms
+   
