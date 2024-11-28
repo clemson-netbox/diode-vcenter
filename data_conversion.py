@@ -43,7 +43,7 @@ def prepare_cluster_data(data):
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
-                    device=host["name"],  
+                    device=device_data,  
                     mac_address=nic["mac"],
                     type=nic["type"],
                     tags=["Diode-vCenter-Agent"],
@@ -90,7 +90,7 @@ def prepare_vm_data(vm_data):
                 try:
                     interface_data = VMInterface(
                         name=nic["name"],
-                        virtual_machine=vm["name"],
+                        virtual_machine=virtual_machine,
                         mac_address=nic["mac"],
                         enabled=nic["enabled"],
                         tags=["Diode-vCenter-Agent"],
@@ -123,7 +123,7 @@ def prepare_vm_data(vm_data):
                 try:
                     disk_data = VirtualDisk(
                         name=disk["name"],
-                        virtual_machine=vm["name"],
+                        virtual_machine=virtual_machine,
                         size=disk["capacity"],
                         description=f"{disk.get('datastore', 'Unknown')} "
                                     f"{disk.get('vmdk', 'Unknown')} "

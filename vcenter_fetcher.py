@@ -107,6 +107,7 @@ def fetch_host_data(hosts, site_name):
             for vnic in host.config.network.vnic:
                 ip_addresses = []
                 if vnic.spec.ip and hasattr(vnic.spec.ip, 'ipAddress'):
+                    #TODO: IPV6 Addresses
                     for ip in vnic.spec.ip.ipAddress.split(','):
                         subnet_mask = vnic.spec.ip.subnetMask if hasattr(vnic.spec.ip, 'subnetMask') else None
                         if subnet_mask:
