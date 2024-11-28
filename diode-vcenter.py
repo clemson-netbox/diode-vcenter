@@ -67,16 +67,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def ingest_with_logging(client, entities, entity_type):
-    try:
-        response = client.ingest(entities=entities)
-        if response.errors:
-            logging.error(f"Diode Ingestion Errors for {entity_type}: {response.errors}")
-        else:
-            logging.info(f"Successfully ingested {len(entities)} {entity_type}.")
-    except Exception as e:
-        logging.error(f"Error during {entity_type} ingestion: {e}")
-
 def main():
     # Parse arguments
     args = parse_arguments()
@@ -109,9 +99,8 @@ def main():
             vm_data = fetch_vm_data(si,logging)
             logging.info(f"Fetched {len(vm_data)} VMs.")
 
-            logging.info("Transforming VM data to Diode entities...")
-            entities = prepare_data(client,cluster_data,vm_data,logging)
-            logging.info(f"Transformed {len(entities)} entities.")
+            logging.info("Transforming data to Diode entities...")
+            prepare_data(client,cluster_data,vm_data,logging)
             
             
         except Exception as e:
