@@ -27,6 +27,7 @@ class Transformer:
         except ValueError:
             logging.error(f"CIDR error {ip} {subnet_mask}: {e}")
             return None
+         
             
     def apply_regex_replacements(self, value, rules):
         try:

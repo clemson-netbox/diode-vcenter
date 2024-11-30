@@ -1,5 +1,18 @@
 import re
-from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Entity
+from netboxlabs.diode.sdk.ingester import Device, VirtualMachine, Cluster, Interface, VMInterface, VirtualDisk, IPAddress, Prefix, Entity
+import ipaddress
+
+def get_network_addr(ip):
+    try:
+        if "." in ip:  # IPv4
+            network = ipaddress.IPv4Network(f"{ip}", strict=False)
+            return f"{network.network_address}/{network.prefixlen}"
+        else:  # IPv6
+            network = ipaddress.IPv6Network(f"{ip}", strict=False)
+            return f"{network.network_address}/{network.prefixlen}"
+    except Exception as e:
+        print(f"Error calculating network address: {e}")
+        return None     
 
 def prepare_data(client,data,vm_data,logging):
     """
@@ -61,6 +74,14 @@ def prepare_data(client,data,vm_data,logging):
 
                     )
                     entities.append(Entity(ip_address=ip_data))
+                    prefix_entity = Prefix(
+                        prefix=get_network_addr(ip),
+                        site = cluster['site'],
+                        description = f"VMWare {nic['portgroup_name']}",
+                        status='active',
+                        tags=["Diode-vCenter-Agent","Diode"],
+                    )
+                    entities.append(Entity(prefix=prefix_entity))
                     #TODO: Create prefixes and VLANs for networks
 
         logging.info("Ingesting Cluster/Host data into Diode...")
