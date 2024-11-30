@@ -129,24 +129,25 @@ def prepare_data(client,data,vm_data,logging):
                     
                     #TODO: Create prefixes and VLANs for networks
                     #TODO: link to vm_interface when diode is updated to support
-                    if nic.get("ipv4_address"):
-                        ip_data = IPAddress(
-                            address=nic["ipv4_address"]["address"],
-                            description=f"{vm['name']} {nic['name']}",
-                            status="active",
-                            tags=["Diode-vCenter-Agent",'Diode'],
-                        )
-                        entities.append(Entity(ip_address=ip_data))
-                        
-                    #TODO: link to vm_interface when diode is updated to support
-                    if nic.get("ipv6_address"):
-                        ip_data = IPAddress(
-                            address=nic["ipv6_address"]["address"],
-                            description=f"{vm['name']} {nic['name']}",
-                            status="active",
-                            tags=["Diode-vCenter-Agent",'Diode'],
+                    if nic.get('ipv4address').get('address'):
+                        if nic.get("ipv4_address"):
+                            ip_data = IPAddress(
+                                address=nic["ipv4_address"]["address"],
+                                description=f"{vm['name']} {nic['name']}",
+                                status="active",
+                                tags=["Diode-vCenter-Agent",'Diode'],
+                            )
+                            entities.append(Entity(ip_address=ip_data))
+                    if nic.get('ipv6address').get('address'):
+                        #TODO: link to vm_interface when diode is updated to support
+                        if nic.get("ipv6_address"):
+                            ip_data = IPAddress(
+                                address=nic["ipv6_address"]["address"],
+                                description=f"{vm['name']} {nic['name']}",
+                                status="active",
+                                tags=["Diode-vCenter-Agent",'Diode'],
 
-                        )
+                            )
                         entities.append(Entity(ip_address=ip_data))
                 except KeyError as e:
                     logging.error(f"Error processing NIC for VM {vm['name']}: Missing key {e}")
