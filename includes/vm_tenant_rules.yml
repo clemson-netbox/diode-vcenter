@@ -346,6 +346,8 @@
   - ["('?i)^4gg.*", "CCIT Internal Operations"]
   - ["('?i)^4gh.*", "CIO Office"]
   - ["('?i)^4gj.*", "CCIT ESA"]
+  - ["('?i)^pfs.*", "CCIT ESA"]
+  - ["('?i)^phr.*", "CCIT ESA"]
   - ["('?i)^4gk.*", "Infrastructure Services & Ops"]
   - ["('?i)^cu-.*", "Infrastructure Services & Ops"]
   - ["('?i)^4gl.*", "Medicaid IT Services"]
@@ -655,3 +657,4 @@
   - ["('?i)^89o.*", "Unalloc Schol Costs Bonuses"]
   - ["('?i)^89p.*", "Flight Services"]
   - ["('?i)^89r.*", "Institutional Support"]
+

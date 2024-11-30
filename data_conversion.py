@@ -46,6 +46,7 @@ def prepare_data(client,data,vm_data,logging):
                 device_type=host["model"],
                 manufacturer=host["vendor"],
                 serial=host["serial_number"],
+                tenant=host['tenant'],
                 role="Hypervisor Host",  # Replace with specific role if applicable
                 status="active",
                 tags=["Diode-vCenter-Agent",'Diode'],
@@ -108,6 +109,7 @@ def prepare_data(client,data,vm_data,logging):
                 platform=vm["platform"],
                 vcpus=vm["vcpus"],
                 memory=vm["memory"],
+                tenant=vm['tenant'],
                 site=vm["site"],
                 role=vm["role"],
                 status=vm["status"],
