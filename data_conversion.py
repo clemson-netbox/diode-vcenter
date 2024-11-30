@@ -41,7 +41,6 @@ def prepare_data(client,data,vm_data,logging):
             )
             host_cache[host['name']]=device_data
 
-            #TODO: Create prefixes and VLANs for networks
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
@@ -62,7 +61,8 @@ def prepare_data(client,data,vm_data,logging):
 
                     )
                     entities.append(Entity(ip_address=ip_data))
-           
+                    #TODO: Create prefixes and VLANs for networks
+
         logging.info("Ingesting Cluster/Host data into Diode...")
         logging.debug(f"Total entities being sent: {entities}")
         try:
