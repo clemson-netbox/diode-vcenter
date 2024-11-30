@@ -8,6 +8,7 @@ def prepare_data(client,data,vm_data,logging):
     entities = []
     cluster_cache={}
     host_cache={}
+    items = 0
 
     for cluster in data:
         
@@ -77,6 +78,8 @@ def prepare_data(client,data,vm_data,logging):
                 
                 
     for vm in vm_data:
+        items += 1
+        
         try:
             # Create VirtualMachine entity for each VM
             virtual_machine = VirtualMachine(
@@ -150,16 +153,15 @@ def prepare_data(client,data,vm_data,logging):
             logging.error(f"Error processing VM: Missing key {e}")
             continue
         
-        logging.info("Ingesting VM data into Diode...")
-        logging.debug(f"Total entities being sent: {entities}")
-        try:
-            response = client.ingest(entities=entities)
+        # Ingest data into Diode
+        if items > 500:
+            logging.info(f"Ingesting {len(entities)} entity batch device data into Diode...")
+            response = client.ingest(entities=entities)# + interface_entities)
             if response.errors:
-                logging.error(f"Diode Ingestion Errors: {response.errors}")
+                logging.error(f"Errors during ingestion: {response.errors}")
             else:
-                logging.info(f"Successfully ingested {len(entities)} Entities.")
-        except Exception as e:
-            logging.error(f"Error during ingestion: {e}")
-        entities=[]
+                logging.info("Data ingested successfully into Diode.")
+            entities = []
+            items = 1
 
     return entities
