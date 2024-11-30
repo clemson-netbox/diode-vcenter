@@ -148,7 +148,7 @@ def prepare_data(client,data,vm_data,logging):
                                 tags=["Diode-vCenter-Agent",'Diode'],
 
                             )
-                        entities.append(Entity(ip_address=ip_data))
+                            entities.append(Entity(ip_address=ip_data))
                 except KeyError as e:
                     logging.error(f"Error processing NIC for VM {vm['name']}: Missing key {e}")
                     continue
