@@ -96,9 +96,9 @@ def main():
             logging.info(f"Fetched {len(cluster_data)} clusters.")
 
             logging.info("Fetching VM data from vCenter...")
-            #vm_data = fetch_vm_data(si,logging)
+            vm_data = fetch_vm_data(si,logging)
             logging.info(f"Fetched {len(vm_data)} VMs.")
-            vm_data = {}
+            
             logging.info("Transforming data to Diode entities...")
             prepare_data(client,cluster_data,vm_data,logging)
             

@@ -97,87 +97,87 @@ def prepare_data(client,data,vm_data,logging):
         entities=[]
                 
                 
-    # for vm in vm_data:
+    for vm in vm_data:
         
-    #     try:
-    #         # Create VirtualMachine entity for each VM
-    #         virtual_machine = VirtualMachine(
-    #             name=vm["name"],
-    #             cluster=cluster_cache[vm["cluster"]],
-    #             device=host_cache[vm["device"]],
-    #             platform=vm["platform"],
-    #             vcpus=vm["vcpus"],
-    #             memory=vm["memory"],
-    #             site=vm["site"],
-    #             role=vm["role"],
-    #             status=vm["status"],
-    #             tags=["Diode-vCenter-Agent",'Diode'],
-    #         )
-    #         entities.append(Entity(virtual_machine=virtual_machine))
+        try:
+            # Create VirtualMachine entity for each VM
+            virtual_machine = VirtualMachine(
+                name=vm["name"],
+                cluster=cluster_cache[vm["cluster"]],
+                device=host_cache[vm["device"]],
+                platform=vm["platform"],
+                vcpus=vm["vcpus"],
+                memory=vm["memory"],
+                site=vm["site"],
+                role=vm["role"],
+                status=vm["status"],
+                tags=["Diode-vCenter-Agent",'Diode'],
+            )
+            entities.append(Entity(virtual_machine=virtual_machine))
             
-    #         for nic in vm["interfaces"]:
-    #             try:
-    #                 interface_data = VMInterface(
-    #                     name=nic["name"],
-    #                     description=f"{vm["name"]}: {nic["name"]}",                
-    #                     virtual_machine=virtual_machine,
-    #                     mac_address=nic["mac"],
-    #                     enabled=nic["enabled"],
-    #                     tags=["Diode-vCenter-Agent",'Diode'],
-    #                 )
-    #                 entities.append(Entity(vminterface=interface_data))
+            for nic in vm["interfaces"]:
+                try:
+                    interface_data = VMInterface(
+                        name=nic["name"],
+                        description=f"{vm["name"]}: {nic["name"]}",                
+                        virtual_machine=virtual_machine,
+                        mac_address=nic["mac"],
+                        enabled=nic["enabled"],
+                        tags=["Diode-vCenter-Agent",'Diode'],
+                    )
+                    entities.append(Entity(vminterface=interface_data))
                     
-    #                 #TODO: Create prefixes and VLANs for networks
-    #                 #TODO: link to vm_interface when diode is updated to support
-    #                 if nic.get("ipv4_address"):
-    #                     ip_data = IPAddress(
-    #                         address=nic["ipv4_address"]["address"],
-    #                         description=f"{vm['name']} {nic['name']}",
-    #                         status="active",
-    #                         tags=["Diode-vCenter-Agent",'Diode'],
-    #                     )
-    #                     entities.append(Entity(ip_address=ip_data))
+                    #TODO: Create prefixes and VLANs for networks
+                    #TODO: link to vm_interface when diode is updated to support
+                    if nic.get("ipv4_address"):
+                        ip_data = IPAddress(
+                            address=nic["ipv4_address"]["address"],
+                            description=f"{vm['name']} {nic['name']}",
+                            status="active",
+                            tags=["Diode-vCenter-Agent",'Diode'],
+                        )
+                        entities.append(Entity(ip_address=ip_data))
                         
-    #                 #TODO: link to vm_interface when diode is updated to support
-    #                 if nic.get("ipv6_address"):
-    #                     ip_data = IPAddress(
-    #                         address=nic["ipv6_address"]["address"],
-    #                         description=f"{vm['name']} {nic['name']}",
-    #                         status="active",
-    #                         tags=["Diode-vCenter-Agent",'Diode'],
+                    #TODO: link to vm_interface when diode is updated to support
+                    if nic.get("ipv6_address"):
+                        ip_data = IPAddress(
+                            address=nic["ipv6_address"]["address"],
+                            description=f"{vm['name']} {nic['name']}",
+                            status="active",
+                            tags=["Diode-vCenter-Agent",'Diode'],
 
-    #                     )
-    #                     entities.append(Entity(ip_address=ip_data))
-    #             except KeyError as e:
-    #                 logging.error(f"Error processing NIC for VM {vm['name']}: Missing key {e}")
-    #                 continue
+                        )
+                        entities.append(Entity(ip_address=ip_data))
+                except KeyError as e:
+                    logging.error(f"Error processing NIC for VM {vm['name']}: Missing key {e}")
+                    continue
 
-    #         for disk in vm["disks"]:
-    #             try:
-    #                 disk_data = VirtualDisk(
-    #                     name=disk["name"],
-    #                     virtual_machine=virtual_machine,
-    #                     size=disk["capacity"],
-    #                     description=f"{disk.get('datastore', 'Unknown')} "
-    #                                 f"{disk.get('vmdk', 'Unknown')} "
-    #                                 f"{disk.get('thin_thick', 'Unknown')} "
-    #                                 f"{disk.get('disk_type', 'Unknown')}",
-    #                     tags=["Diode-vCenter-Agent",'Diode'],
-    #                 )
-    #                 entities.append(Entity(virtual_disk=disk_data))
-    #             except KeyError as e:
-    #                 logging.error(f"Error processing disk for VM {vm['name']}: Missing key {e}")
-    #                 continue
-    #     except KeyError as e:
-    #         logging.error(f"Error processing VM: Missing key {e}")
-    #         continue
+            for disk in vm["disks"]:
+                try:
+                    disk_data = VirtualDisk(
+                        name=disk["name"],
+                        virtual_machine=virtual_machine,
+                        size=disk["capacity"],
+                        description=f"{disk.get('datastore', 'Unknown')} "
+                                    f"{disk.get('vmdk', 'Unknown')} "
+                                    f"{disk.get('thin_thick', 'Unknown')} "
+                                    f"{disk.get('disk_type', 'Unknown')}",
+                        tags=["Diode-vCenter-Agent",'Diode'],
+                    )
+                    entities.append(Entity(virtual_disk=disk_data))
+                except KeyError as e:
+                    logging.error(f"Error processing disk for VM {vm['name']}: Missing key {e}")
+                    continue
+        except KeyError as e:
+            logging.error(f"Error processing VM: Missing key {e}")
+            continue
         
-    #     # Ingest data into Diode
-    #     if len(entities) > 10000:
-    #         logging.info(f"Ingesting {len(entities)} entity batch device data into Diode...")
-    #         response = client.ingest(entities=entities)# + interface_entities)
-    #         if response.errors:
-    #             logging.error(f"Errors during ingestion: {response.errors}")
-    #         else:
-    #             logging.info("Data ingested successfully into Diode.")
-    #         entities = []
+        # Ingest data into Diode
+        if len(entities) > 10000:
+            logging.info(f"Ingesting {len(entities)} entity batch device data into Diode...")
+            response = client.ingest(entities=entities)# + interface_entities)
+            if response.errors:
+                logging.error(f"Errors during ingestion: {response.errors}")
+            else:
+                logging.info("Data ingested successfully into Diode.")
+            entities = []
