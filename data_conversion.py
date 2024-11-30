@@ -58,7 +58,7 @@ def prepare_data(client,data,vm_data,logging):
                 interface_data = Interface(
                     name=nic["name"], 
                     device=device_data, 
-                    description=f"{host['name']} {nic['name']} {nic['portgroup_name']}",
+                    description=f"{cluster['name']}/{host['name']} {nic['name']} {nic['portgroup_name']}",
                     mac_address=nic["mac"],
                     type=nic["type"],
                     tags=["Diode-vCenter-Agent",'Diode'],
@@ -69,7 +69,7 @@ def prepare_data(client,data,vm_data,logging):
                     ip_data = IPAddress(
                         address=ip,
                         interface=interface_data,
-                        description=f"{host['name']} {nic['name']} {nic['portgroup_name']}",
+                        description=f"{cluster['name']}/{host['name']} {nic['name']} {nic['portgroup_name']}",
                         tags=["Diode-vCenter-Agent",'Diode'],
 
                     )
@@ -77,7 +77,7 @@ def prepare_data(client,data,vm_data,logging):
                     prefix_entity = Prefix(
                         prefix=get_network_addr(ip),
                         site = cluster['site'],
-                        description = f"VMWare {nic['portgroup_name']}",
+                        description = f"Cluster {cluster['name']} {nic['portgroup_name']} VLAN ({cluster['site']})",
                         status='active',
                         tags=["Diode-vCenter-Agent","Diode"],
                     )
@@ -111,6 +111,7 @@ def prepare_data(client,data,vm_data,logging):
                 site=vm["site"],
                 role=vm["role"],
                 status=vm["status"],
+                description=f"{cluster['name']} {vm["role"]} VM for {vm["tenant"]}",
                 tags=["Diode-vCenter-Agent",'Diode'],
             )
             entities.append(Entity(virtual_machine=virtual_machine))

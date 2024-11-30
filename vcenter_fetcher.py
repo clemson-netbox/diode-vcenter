@@ -226,6 +226,7 @@ def fetch_vm_data(si,logging):
                         "vcpus": vm.config.hardware.numCPU if hasattr(vm.config.hardware, "numCPU") else None,
                         "memory": vm.config.hardware.memoryMB if hasattr(vm.config.hardware, "memoryMB") else None,
                         "description": vm.summary.config.annotation if vm.summary.config.annotation else None,
+                        "tenant": transformer.vm_to_tenant(vm.name),
                         "comments": None,  # Placeholder for any comments
                         "interfaces": vm_interfaces,  # List of NICs
                         "disks": vm_disks,  # List of disks
