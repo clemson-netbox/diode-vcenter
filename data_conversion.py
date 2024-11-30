@@ -174,7 +174,7 @@ def prepare_data(client,data,vm_data,logging):
             continue
         
         # Ingest data into Diode
-        if len(entities) > 10000:
+        if len(entities) > 1000:
             logging.info(f"Ingesting {len(entities)} entity batch device data into Diode...")
             response = client.ingest(entities=entities)# + interface_entities)
             if response.errors:
@@ -182,3 +182,11 @@ def prepare_data(client,data,vm_data,logging):
             else:
                 logging.info("Data ingested successfully into Diode.")
             entities = []
+    
+    logging.info(f"Ingesting {len(entities)} entity batch device data into Diode...")
+    response = client.ingest(entities=entities)# + interface_entities)
+    if response.errors:
+        logging.error(f"Errors during ingestion: {response.errors}")
+    else:
+        logging.debug("Data ingested successfully into Diode.")
+    entities = []
