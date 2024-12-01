@@ -113,7 +113,7 @@ def prepare_data(client,data,vm_data,logging):
                 site=vm["site"],
                 role=vm["role"],
                 status=vm["status"],
-                description=f"{cluster['name']} {vm["role"]} VM for {vm["tenant"]}",
+                description=f"{cluster['name']} {vm["role"]} VM for {host["tenant"]}",
                 tags=["Diode-vCenter-Agent",'Diode'],
             )
             entities.append(Entity(virtual_machine=virtual_machine))
