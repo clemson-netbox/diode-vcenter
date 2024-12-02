@@ -230,6 +230,8 @@ def fetch_vm_data(si,logging):
                         "comments": None,  # Placeholder for any comments
                         "interfaces": vm_interfaces,  # List of NICs
                         "disks": vm_disks,  # List of disks
+                        "tenant": transformer.vm_to_tenant(vm.name)
+
                     })
 
                 
