@@ -58,7 +58,7 @@ def prepare_data(client,data,vm_data,logging):
             for nic in host["nics"]:
                 interface_data = Interface(
                     name=nic["name"], 
-                    device=device_data, 
+                    device=host["name"], 
                     description=f"{cluster['name']}/{host['name']} {nic['name']} {nic['portgroup_name']}",
                     mac_address=nic["mac"],
                     type=nic["type"],
@@ -69,7 +69,7 @@ def prepare_data(client,data,vm_data,logging):
                 for ip in nic['ip_addresses']:
                     ip_data = IPAddress(
                         address=ip,
-                        interface=interface_data,
+                        interface=nic["name"],
                         description=f"{cluster['name']}/{host['name']} {nic['name']} {nic['portgroup_name']}",
                         tags=["Diode-vCenter-Agent",'Diode'],
 
@@ -104,12 +104,12 @@ def prepare_data(client,data,vm_data,logging):
             # Create VirtualMachine entity for each VM
             virtual_machine = VirtualMachine(
                 name=vm["name"],
-                cluster=cluster_cache[vm["cluster"]],
-                device=host_cache[vm["device"]],
+                cluster=vm["cluster"],
+                device=vm["device"],
                 platform=vm["platform"],
                 vcpus=vm["vcpus"],
                 #memory=vm["memory"],
-                tenant=vm['tenant'],
+                #tenant=vm['tenant'],
                 site=vm["site"],
                 role=vm["role"],
                 status=vm["status"],
