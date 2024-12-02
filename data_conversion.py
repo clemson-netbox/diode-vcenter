@@ -104,7 +104,7 @@ def prepare_data(client,data,vm_data,logging):
             # Create VirtualMachine entity for each VM
             virtual_machine = VirtualMachine(
                 name=vm["name"],
-                cluster=cluster_cache(vm['cluster']),
+                cluster=cluster_cache.get(vm['cluster'], None),
                 platform=vm["platform"],
                 vcpus=vm["vcpus"],
                 #memory=vm["memory"],
